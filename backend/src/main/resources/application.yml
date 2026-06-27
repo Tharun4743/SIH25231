@@ -1,0 +1,54 @@
+server:
+  port: 8080
+spring:
+  datasource:
+    url: jdbc:sqlite:./data/aura.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: update
+  h2:
+    console:
+      enabled: false
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+aura:
+  ollama:
+    url: http://localhost:11434
+    models:
+      llm: llama3
+      embedding: nomic-embed-text
+    gpu:
+      num-gpu: 33
+      num-thread: 8
+      num-ctx: 4096
+      temperature: 0.1
+      top-p: 0.9
+      repeat-penalty: 1.1
+    timeouts:
+      connect-ms: 5000
+      read-ms: 120000
+  chroma:
+    url: http://localhost:8001
+    collections:
+      documents: aura-documents
+      audio: aura-audio
+      images: aura-images
+    top-k: 3
+  upload:
+    dir: ./uploads
+  chunk:
+    size: 500
+    overlap: 100
+  sidecars:
+    whisper:
+      script: ./sidecars/whisper_sidecar.py
+      device: cuda
+      compute-type: float16
+      model-cache: ./models/whisper
+    clip:
+      script: ./sidecars/clip_sidecar.py
+      model-path: ./models/clip-vit-base-patch32
+      device: cuda

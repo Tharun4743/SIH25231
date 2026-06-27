@@ -1,0 +1,21 @@
+
+[28932:0627/160852.734:ERROR:cache_util_win.cc(20)] Unable to move the cache: Access is denied. (0x5)
+[28932:0627/160852.734:ERROR:cache_util_win.cc(20)] Unable to move the cache: Access is denied. (0x5)
+[28932:0627/160852.734:ERROR:cache_util_win.cc(20)] Unable to move the cache: Access is denied. (0x5)
+[28932:0627/160852.743:ERROR:disk_cache.cc(208)] Unable to create cache
+[28932:0627/160852.743:ERROR:gpu_disk_cache.cc(711)] Gpu Cache Creation failed: -2
+[28932:0627/160852.743:ERROR:disk_cache.cc(208)] Unable to create cache
+[28932:0627/160852.743:ERROR:gpu_disk_cache.cc(711)] Gpu Cache Creation failed: -2
+[28932:0627/160852.743:ERROR:disk_cache.cc(208)] Unable to create cache
+[28932:0627/160852.743:ERROR:gpu_disk_cache.cc(711)] Gpu Cache Creation failed: -2
+[AURA STATUS] Cleaning previous installation...
+[AURA CLEAN] Could not remove C:\Users\tharu\AppData\Roaming\aura-desktop: EPERM: operation not permitted, unlink 'C:\Users\tharu\AppData\Roaming\aura-desktop\DawnGraphiteCache\data_0'
+[AURA CLEAN] Could not remove C:\Users\tharu\AppData\Roaming\aura-desktop\GPUCache: EPERM: operation not permitted, unlink 'C:\Users\tharu\AppData\Roaming\aura-desktop\GPUCache\data_0'
+[AURA CLEAN] Could not remove C:\Users\tharu\AppData\Roaming\aura-desktop\Local Storage: EBUSY: resource busy or locked, unlink 'C:\Users\tharu\AppData\Roaming\aura-desktop\Local Storage\leveldb\000003.log'
+[AURA CLEAN] Removed: C:\Users\tharu\AppData\Roaming\aura-desktop\logs
+[AURA CLEAN] Cache wipe complete. Fresh install ready.
+[AURA STATUS] Verifying AI models...
+[AURA STATUS] Launching Ollama service...
+[AURA STATUS] Starting local RAG engine...
+[AURA STATUS] Connecting to RAG service...
+[AURA STATUS] Launching AURA...

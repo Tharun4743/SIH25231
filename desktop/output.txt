@@ -1,0 +1,13 @@
+
+[AURA STATUS] Cleaning previous installation...
+[AURA CLEAN] Could not remove C:\Users\tharu\AppData\Roaming\aura-desktop: EPERM: operation not permitted, unlink 'C:\Users\tharu\AppData\Roaming\aura-desktop\DawnGraphiteCache\data_0'
+[AURA CLEAN] Could not remove C:\Users\tharu\AppData\Roaming\aura-desktop\GPUCache: EPERM: operation not permitted, unlink 'C:\Users\tharu\AppData\Roaming\aura-desktop\GPUCache\data_0'
+[AURA CLEAN] Removed: C:\Users\tharu\AppData\Roaming\aura-desktop\Session Storage
+[AURA CLEAN] Could not remove C:\Users\tharu\AppData\Roaming\aura-desktop\Local Storage: EBUSY: resource busy or locked, unlink 'C:\Users\tharu\AppData\Roaming\aura-desktop\Local Storage\leveldb\000003.log'
+[AURA CLEAN] Removed: C:\Users\tharu\AppData\Roaming\aura-desktop\logs
+[AURA CLEAN] Cache wipe complete. Fresh install ready.
+[AURA STATUS] Verifying AI models...
+[AURA STATUS] Launching Ollama service...
+[AURA ERROR] Ollama is not running.
+
+Please run the Ollama desktop application and restart AURA.

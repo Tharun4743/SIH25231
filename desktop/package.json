@@ -1,0 +1,43 @@
+{
+  "name": "aura-desktop",
+  "version": "1.0.0",
+  "description": "Aura - AI unified retrival assistant",
+  "main": "main.js",
+  "scripts": {
+    "start": "electron .",
+    "build": "node scripts/build.js",
+    "package": "npx electron-builder build --win --publish never"
+  },
+  "devDependencies": {
+    "electron": "^31.0.0",
+    "electron-builder": "^24.13.3"
+  },
+  "build": {
+    "appId": "com.aura.desktop",
+    "productName": "Aura - AI unified retrival assistant",
+    "compression": "normal",
+    "removePackageScripts": true,
+    "nodeGypRebuild": false,
+    "buildDependenciesFromSource": false,
+    "directories": { "output": "dist" },
+    "files": ["main.js", "loading.html", "package.json"],
+    "extraResources": [
+      { "from": "jre",          "to": "jre",          "filter": ["**/*"] },
+      { "from": "backend",      "to": "backend",       "filter": ["**/*"] },
+      { "from": "frontend/dist","to": "frontend/dist", "filter": ["**/*"] },
+      { "from": ".venv",        "to": ".venv",         "filter": ["**/*"] },
+      { "from": "data",         "to": "data",          "filter": ["**/*"] }
+    ],
+    "win": { "target": ["nsis", "portable"] },
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Aura - AI unified retrival assistant",
+      "uninstallDisplayName": "Aura - AI unified retrival assistant",
+      "installerLanguages": ["en_US"],
+      "allowElevation": false
+    }
+  }
+}

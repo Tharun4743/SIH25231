@@ -1,0 +1,173 @@
+/* SIH-Themed Professional Design System — AURA */
+/* Smart India Hackathon color palette: Teal primary + Saffron accent */
+@import "tailwindcss";
+
+@theme {
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --font-mono: "JetBrains Mono", "Cascadia Code", "Fira Code", ui-monospace, "SFMono-Regular", Menlo, Monaco, Consolas, monospace;
+  --font-display: "Space Grotesk", "Nunito", system-ui, -apple-system, sans-serif;
+
+  /* === SIH PRIMARY — Deep Teal (professional, not generic blue) === */
+  --color-primary: #0D7377;
+  --color-primary-hover: #0A5C60;
+  --color-primary-light: #14A8AE;
+  --color-accent: #F5A623;
+
+  /* === DARK MODE DEFAULTS (base) === */
+  --color-app-bg: #090E17;      /* Obsidian main workspace background */
+  --color-sidebar-bg: #0E1420;   /* Sidebar offset surface */
+  --color-header-bg: #151D2A;    /* Top header row bar */
+  --color-card-bg: #1B263B;      /* Raised card element */
+  --color-panel-bg: #22314C;     /* Inner console panels */
+  --color-modal-bg: #151D2A;     /* Modals surface */
+
+  --color-border-default: #2A3C59;
+  --color-border-hover: #3B5377;
+  --color-border-focus: #14A8AE;
+
+  --color-text-primary: #F3F4F6;
+  --color-text-secondary: #D1D5DB;
+  --color-text-muted: #9CA3AF;
+  --color-text-placeholder: #6B7280;
+  --color-text-disabled: #374151;
+
+  /* === STATUS COLORS === */
+  --color-status-success: #38A169;
+  --color-status-success-bg: #1C4532;
+  --color-status-success-border: #38A169;
+  --color-status-warning: #F5A623;
+  --color-status-warning-bg: #7B3A00;
+  --color-status-warning-border: #F5A623;
+  --color-status-error: #E53E3E;
+  --color-status-error-bg: #742A2A;
+  --color-status-error-border: #E53E3E;
+  --color-status-info: #14A8AE;
+  --color-status-info-bg: #0D4A4D;
+  --color-status-info-border: #14A8AE;
+
+  /* Backwards compat aliases */
+  --color-primary-base: #0D7377;
+  --color-bg-base: #090E17;
+  --color-card-base: #1B263B;
+  --color-border-base: #2A3C59;
+  --color-text-base: #F3F4F6;
+  --color-muted-base: #9CA3AF;
+  --color-success-base: #38A169;
+  --color-warning-base: #F5A623;
+  --color-error-base: #E53E3E;
+}
+
+/* =====================================================
+   LIGHT MODE — applied via .light class on <html>
+   ===================================================== */
+.light {
+  --color-primary: #0D7377;
+  --color-primary-hover: #0A5C60;
+  --color-primary-light: #0D7377;
+  --color-accent: #D4820A;
+
+  --color-app-bg: #F4F6F9;
+  --color-sidebar-bg: #E9EDF2;
+  --color-header-bg: #FFFFFF;
+  --color-card-bg: #FFFFFF;
+  --color-panel-bg: #F0F4F8;
+  --color-modal-bg: #FFFFFF;
+
+  --color-border-default: #D2D9E2;
+  --color-border-hover: #B4C0CF;
+  --color-border-focus: #0D7377;
+
+  --color-text-primary: #111827;
+  --color-text-secondary: #374151;
+  --color-text-muted: #6B7280;
+  --color-text-placeholder: #9CA3AF;
+  --color-text-disabled: #CBD5E0;
+
+  --color-status-success: #276749;
+  --color-status-success-bg: #C6F6D5;
+  --color-status-success-border: #276749;
+  --color-status-warning: #C05621;
+  --color-status-warning-bg: #FEEBC8;
+  --color-status-warning-border: #C05621;
+  --color-status-error: #C53030;
+  --color-status-error-bg: #FED7D7;
+  --color-status-error-border: #C53030;
+  --color-status-info: #0D7377;
+  --color-status-info-bg: #B2F5EA;
+  --color-status-info-border: #0D7377;
+}
+
+/* =====================================================
+   GLOBAL RESETS & BASE
+   ===================================================== */
+*, *::before, *::after {
+  box-sizing: border-box;
+}
+
+html, body, #root {
+  height: 100%;
+  overflow: hidden;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+  background-color: var(--color-app-bg);
+  color: var(--color-text-primary);
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+/* =====================================================
+   SCROLLBAR STYLING
+   ===================================================== */
+::-webkit-scrollbar {
+  width: 5px;
+  height: 5px;
+}
+::-webkit-scrollbar-track {
+  background: transparent;
+}
+::-webkit-scrollbar-thumb {
+  background: var(--color-border-default);
+  border-radius: 4px;
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--color-border-hover);
+}
+
+/* =====================================================
+   ANIMATIONS
+   ===================================================== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+@keyframes slideIn {
+  from { opacity: 0; transform: translateX(-8px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.animate-fade-in {
+  animation: fadeIn 0.2s ease-out both;
+}
+
+.animate-slide-in {
+  animation: slideIn 0.2s ease-out both;
+}
+
+/* =====================================================
+   UTILITY OVERRIDES
+   ===================================================== */
+.hover\:scale-102:hover {
+  transform: scale(1.02);
+}
+
+/* Smooth theme transition */
+*, *::before, *::after {
+  transition-property: background-color, border-color, color, fill, stroke;
+  transition-duration: 150ms;
+  transition-timing-function: ease;
+}
