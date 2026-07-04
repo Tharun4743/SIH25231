@@ -1,0 +1,7 @@
+\begin{abstract}
+This paper presents the architectural design and implementation of Aura, an AI Unified Retrieval Assistant functioning as a fully offline, sovereign multimodal Retrieval-Augmented Generation (RAG) system. Engineered specifically for resource-constrained and strictly air-gapped environments, Aura ensures 100\% on-premises data privacy and security. The system integrates advanced document processing with overlapping chunking, local vector indexation using a simulated high-fidelity semantic cosine cache mapping (ChromaDB fallback), visual semantic search via a local Hugging Face CLIP model, and voice transcription using Whisper and Vosk APIs. By leveraging the local deployment of Llama-3 and nomic-embed-text models through Ollama, the system achieves context-anchored chat generation without relying on external cloud infrastructure. A military-grade desktop container built with Electron wraps a React-based frontend and a Java Spring Boot backend, resulting in a cohesive, standalone executable for secure enterprise applications. We analyze the system architecture, component interactions, algorithmic strategies, and present experimental evaluations highlighting performance, maintainability, scalability, and security in isolated computing domains.
+\end{abstract}
+
+\begin{IEEEkeywords}
+Retrieval-Augmented Generation (RAG), Air-gapped Environments, Multimodal Systems, Data Privacy, Offline AI, Llama-3, Spring Boot.
+\end{IEEEkeywords}

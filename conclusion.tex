@@ -1,0 +1,19 @@
+\section{Conclusion}
+This paper presented Aura, a fully offline, multimodal Retrieval-Augmented Generation (RAG) system engineered for high-security, air-gapped environments. By decoupling inference through Ollama, managing persistent relational state via SQLite, and facilitating visual and auditory processing through localized Python sidecars, Aura establishes a new paradigm for sovereign enterprise AI.
+
+\subsection{Advantages}
+\begin{itemize}
+    \item \textbf{Absolute Data Privacy:} 100\% on-premises execution prevents data leakage.
+    \item \textbf{Multimodal Capabilities:} The seamless integration of document, image, and voice processing provides a comprehensive analysis tool.
+    \item \textbf{Ease of Use:} The Electron-based deployment abstract complex dependencies, offering a one-click installation process for end-users.
+    \item \textbf{Resilience:} Fallback mechanisms, such as the simulated ChromaDB cache, ensure uninterrupted operation even when independent microservices fail.
+\end{itemize}
+
+\subsection{Limitations}
+\begin{itemize}
+    \item \textbf{Hardware Dependency:} The performance and contextual capacity of the system are heavily bottlenecked by the host machine's VRAM and computational power.
+    \item \textbf{Monolithic Coupling:} While sidecars provide some decoupling, the Java backend tightly coordinates all processes, potentially leading to bottlenecks under extreme concurrent loads.
+\end{itemize}
+
+\subsection{Future Enhancements}
+Future iterations of Aura will focus on optimizing the local vector database by integrating more performant, lightweight embedded solutions like DuckDB or a native Rust implementation. Additionally, incorporating localized Agentic workflows (e.g., enabling Llama-3 to autonomously execute local scripts or summarize vast directories) will further augment the system's utility for technical research organizations.

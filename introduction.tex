@@ -1,0 +1,15 @@
+\section{Introduction}
+The rapid advancement of Large Language Models (LLMs) and Artificial Intelligence has transformed how organizations process and query large volumes of data. Retrieval-Augmented Generation (RAG) systems have emerged as a primary solution to mitigate hallucination in LLMs by anchoring responses to retrieved contextual documents. However, deploying these advanced systems in military, defense, and highly confidential corporate sectors presents a critical challenge: the strict requirement for air-gapped operations and absolute data sovereignty. Most modern RAG solutions depend on cloud-based APIs (e.g., OpenAI, Pinecone), which strictly violate the security protocols of isolated environments.
+
+\subsection{Problem Statement}
+In high-security, resource-constrained domains such as the National Technical Research Organisation (NTRO), sensitive enterprise documents, visual assets, and vocal recordings cannot be transmitted over the internet for processing. Existing offline tools either lack multimodal capabilities, suffer from inefficient document parsing and chunking mechanisms, or fail to provide an integrated, user-friendly interface. Furthermore, deploying complex AI models locally often requires convoluted setup procedures involving multiple dependencies, rendering them inaccessible to non-technical personnel operating in the field.
+
+\subsection{Objectives}
+To address these limitations, we developed \textbf{Aura} (AI Unified Retrieval Assistant). The core objectives of the system are:
+\begin{itemize}
+    \item \textbf{100\% Offline Operation:} Ensure absolute data privacy by running all LLM inference, embedding generation, and transcription locally without internet access.
+    \item \textbf{Multimodal Integration:} Support the ingestion, indexing, and retrieval of text (PDF, plaintext), images, and audio seamlessly.
+    \item \textbf{Efficient Resource Management:} Utilize optimized models (Llama-3, CLIP, Whisper) and a simulated high-fidelity semantic cosine cache mapping to operate efficiently within local hardware constraints.
+    \item \textbf{Simplified Deployment:} Provide a military-grade, standalone desktop executable wrapping a Java Spring Boot backend and React frontend via Electron.
+    \item \textbf{Auditable Architecture:} Maintain strict system logs, audit trails, and persistent multi-threaded chat histories using a local SQLite database.
+\end{itemize}
