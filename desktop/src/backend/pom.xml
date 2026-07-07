@@ -79,6 +79,11 @@
             <artifactId>spring-boot-starter-test</artifactId>
             <scope>test</scope>
         </dependency>
+        <dependency>
+            <groupId>org.springdoc</groupId>
+            <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
+            <version>2.5.0</version>
+        </dependency>
     </dependencies>
 
     <build>
@@ -112,19 +117,4 @@
             </plugin>
         </plugins>
     </build>
-
-    <profiles>
-        <!-- Dev profile: enables Swagger UI for local development -->
-        <profile>
-            <id>dev</id>
-            <dependencies>
-                <dependency>
-                    <groupId>org.springdoc</groupId>
-                    <artifactId>springdoc-openapi-starter-webmvc-ui</artifactId>
-                    <version>2.5.0</version>
-                </dependency>
-            </dependencies>
-        </profile>
-    </profiles>
-
 </project>

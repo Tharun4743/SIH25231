@@ -57,3 +57,15 @@ aura:
       model-path: ./models/clip-vit-base-patch32
       # W-04 FIX: Default to CPU.
       device: cpu
+
+---
+spring:
+  config:
+    activate:
+      on-profile: prod
+
+springdoc:
+  api-docs:
+    enabled: false
+  swagger-ui:
+    enabled: false
