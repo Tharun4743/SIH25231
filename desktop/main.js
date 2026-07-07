@@ -139,46 +139,39 @@ function markSetupComplete() {
 // ─── Ollama detection (CF-01: async, non-blocking) ───────────────────────────
 
 /**
- * Async wrapper around 'where ollama' on Windows.
- * Returns the path string or null — NEVER blocks the event loop.
- */
-function whereAsync(cmd) {
-    return new Promise((resolve) => {
-        execFile('where', [cmd], { windowsHide: true, timeout: 5000 }, (err, stdout) => {
-            if (err || !stdout) { resolve(null); return; }
-            const firstLine = stdout.trim().split('\n')[0].trim();
-            resolve(firstLine || null);
-        });
-    });
-}
-
-/**
- * Try to resolve the ollama executable path.
- * Search order:
- *   1. System PATH (works for both user & machine installs) — async
- *   2. %LOCALAPPDATA%\Programs\Ollama\ollama.exe  (Ollama default user install)
- *
- * CF-01 FIX: uses async execFile, never blocks the main process thread.
+ * Try to resolve the ollama executable path using pure Javascript filesystem checks.
+ * This completely avoids running child processes (like 'where'), preventing flashing/blinking command prompt windows.
  */
 async function findOllamaExe() {
-    // 1. Check PATH (async)
-    const fromPath = await whereAsync('ollama');
-    if (fromPath && fs.existsSync(fromPath)) {
-        log(`Ollama found in PATH: ${fromPath}`);
-        return fromPath;
+    // 1. Manually parse and check system PATH environment variable
+    const pathEnv = process.env.PATH || '';
+    const paths = pathEnv.split(path.delimiter);
+    for (const p of paths) {
+        if (!p) continue;
+        const candidate = path.join(p, 'ollama.exe');
+        try {
+            if (fs.existsSync(candidate)) {
+                log(`Ollama found in PATH: ${candidate}`);
+                return candidate;
+            }
+        } catch (_) {}
     }
 
-    // 2. Check default user install location
+    // 2. Check default user and system installation paths
     const localAppData = process.env.LOCALAPPDATA || '';
+    const programFiles = process.env.ProgramFiles || 'C:\\Program Files';
     const candidates = [
         path.join(localAppData, 'Programs', 'Ollama', 'ollama.exe'),
         path.join(localAppData, 'Programs', 'Ollama', 'ollama app.exe'),
+        path.join(programFiles, 'Ollama', 'ollama.exe'),
     ];
     for (const p of candidates) {
-        if (fs.existsSync(p)) {
-            log(`Ollama found at: ${p}`);
-            return p;
-        }
+        try {
+            if (fs.existsSync(p)) {
+                log(`Ollama found at: ${p}`);
+                return p;
+            }
+        } catch (_) {}
     }
 
     return null;
