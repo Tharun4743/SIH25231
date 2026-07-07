@@ -54,6 +54,8 @@ export default function App() {
   const [isUploadOpen, setIsUploadOpen] = useState(false);
   const [sessions, setSessions] = useState<any[]>([]);
   const [activeSessionId, setActiveSessionId] = useState<string>(() => `session-${Date.now()}`);
+  const [filesBrain, setFilesBrain] = useState<boolean>(true);
+  const [selectedDocId, setSelectedDocId] = useState<string | null>(null);
   
   // Toasts state (multi-toast stack)
   const [toasts, setToasts] = useState<Toast[]>([]);
@@ -239,12 +241,21 @@ export default function App() {
       console.error(err);
       addToast("error", "Deindexation Aborted", "Could not remove requested document chunk indexes.");
     }
-  };
- 
-  // Action: File indexing complete — smart redirection
-  const handleUploadSuccess = (filename: string, type: string) => {
-    loadLibrary();
+  };  // Action: File indexing complete — smart redirection
+  const handleUploadSuccess = async (filename: string, type: string) => {
     setIsUploadOpen(false);
+    
+    try {
+      const docs = await fetchDocuments();
+      setDocuments(docs);
+      const uploadedDoc = docs.find(d => d.name === filename);
+      if (uploadedDoc) {
+        setSelectedDocId(uploadedDoc.id);
+      }
+      setFilesBrain(true);
+    } catch (err) {
+      loadLibrary();
+    }
     
     if (type === "image") {
       setSelectedTab("library");
@@ -283,11 +294,11 @@ export default function App() {
         setMessages((prev) => [...prev, userMsg]);
         setIsStreaming(true);
         setInputVal("");
-        sendMessage(trimmed, activeSessionId);
+        sendMessage(trimmed, activeSessionId, filesBrain, selectedDocId);
       }
     }, 80);
   };
- 
+  
   // Action: Send Query message
   const handleSend = () => {
     if (!inputVal.trim()) return;
@@ -311,7 +322,7 @@ export default function App() {
     }
  
     // Direct to WebSocket query emitter
-    sendMessage(userMsg.text, activeSessionId);
+    sendMessage(userMsg.text, activeSessionId, filesBrain, selectedDocId);
   };
  
   // Action: Start a new conversation (Generate a new session ID and clear UI)
@@ -643,9 +654,40 @@ export default function App() {
               
               {/* Central Text Input container */}
               <div className="flex-1 bg-card-bg border border-border-default rounded-2xl p-2.5 px-4 flex flex-col justify-between transition-all duration-200 focus-within:border-primary">
-                <div className="flex items-center gap-2 mb-1.5">
+                <div className="flex flex-wrap items-center gap-2 mb-1.5">
                    <span className="px-1.5 py-0.5 bg-app-bg text-text-muted text-[9px] font-bold rounded border border-border-default">llama3-8b</span>
                    <span className="px-1.5 py-0.5 bg-app-bg text-text-muted text-[9px] font-bold rounded border border-border-default">on-premises</span>
+                   
+                   <span className="mx-0.5 text-text-muted">|</span>
+                   
+                   <button
+                     type="button"
+                     onClick={() => setFilesBrain(!filesBrain)}
+                     className={`px-2 py-0.5 text-[9px] font-bold rounded border transition-colors flex items-center gap-1 ${
+                       filesBrain 
+                         ? "bg-primary/10 text-primary-light border-primary/30 hover:bg-primary/20" 
+                         : "bg-app-bg text-text-muted border-border-default hover:bg-card-bg"
+                     }`}
+                     title="Toggle Files Brain (RAG Mode vs General Knowledge)"
+                   >
+                     🧠 Files Brain: {filesBrain ? "Yes" : "No"}
+                   </button>
+
+                   {filesBrain && documents.length > 0 && (
+                     <select
+                       value={selectedDocId || "all"}
+                       onChange={(e) => setSelectedDocId(e.target.value === "all" ? null : e.target.value)}
+                       className="bg-app-bg border border-border-default rounded px-2 py-0.5 text-[9px] font-bold text-text-secondary focus:outline-none focus:border-primary transition-all max-w-[120px] md:max-w-[180px] truncate"
+                     >
+                       <option value="all">All Documents</option>
+                       {documents.map((doc) => (
+                         <option key={doc.id} value={doc.id}>
+                           {doc.name}
+                         </option>
+                       ))}
+                     </select>
+                   )}
+
                    <span className="ml-auto flex items-center gap-1.5 text-[9px] text-text-muted font-bold uppercase">
                      <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? "bg-status-success animate-pulse shadow-[0_0_8px_#10b981]" : "bg-status-error"}`} />
                      {isConnected ? "Aura Engine Active" : "Aura offline"}
@@ -658,7 +700,13 @@ export default function App() {
                   onKeyDown={handleKeyDown}
                   rows={1}
                   className="bg-transparent border-none focus:ring-0 text-xs md:text-sm resize-none w-full py-1 text-text-primary focus:outline-none placeholder:text-text-placeholder select-text max-h-32"
-                  placeholder={documents.length === 0 ? "Upload source documents to initiate local grounded RAG..." : "Ask Aura or query active repository..."}
+                  placeholder={
+                    !filesBrain 
+                      ? "Ask Aura generally (using LLM knowledge)..." 
+                      : documents.length === 0 
+                        ? "Upload source documents to initiate local grounded RAG..." 
+                        : "Ask Aura or query active repository..."
+                  }
                 />
               </div>
 

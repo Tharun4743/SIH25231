@@ -247,24 +247,12 @@ async function ensureOllamaRunning(ollamaExe) {
         return;
     }
 
-    log('Starting Ollama service...');
-    const trayApp = await findOllamaAppExe();
-    let ollamaProcess;
-    if (trayApp) {
-        log(`Launching Ollama GUI App: ${trayApp}`);
-        ollamaProcess = spawn(trayApp, [], {
-            detached: true,
-            stdio: 'ignore',
-            windowsHide: true,
-        });
-    } else {
-        log(`Launching Ollama CLI Serve: ${ollamaExe}`);
-        ollamaProcess = spawn(ollamaExe, ['serve'], {
-            detached: true,
-            stdio: 'ignore',
-            windowsHide: true,
-        });
-    }
+    log(`Launching Ollama CLI Serve: ${ollamaExe}`);
+    const ollamaProcess = spawn(ollamaExe, ['serve'], {
+        detached: true,
+        stdio: 'ignore',
+        windowsHide: true,
+    });
     ollamaProcess.unref();
     didSpawnOllama = true;
     ollamaPid = ollamaProcess.pid; // Track PID for safe shutdown

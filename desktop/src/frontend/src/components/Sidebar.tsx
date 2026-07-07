@@ -77,11 +77,23 @@ export default function Sidebar({
       {/* Brand Header */}
       <div className="h-[70px] px-6 border-b border-border-default flex items-center justify-between shrink-0 select-none">
         <div className="flex items-center gap-3">
-          <div className="w-8 h-8 bg-primary rounded-lg flex items-center justify-center shadow-lg shadow-primary/30">
-            <span className="text-text-primary font-black text-sm tracking-wider">Ω</span>
+          <div className="w-9 h-9 flex items-center justify-center relative shrink-0">
+            <svg className="w-9 h-9" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="auraGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" stopColor="#a855f7" />
+                  <stop offset="50%" stopColor="#3b82f6" />
+                  <stop offset="100%" stopColor="#06b6d4" />
+                </linearGradient>
+              </defs>
+              <circle cx="16" cy="16" r="14" fill="url(#auraGrad)" className="opacity-20 animate-pulse" />
+              <circle cx="16" cy="16" r="10" stroke="url(#auraGrad)" strokeWidth="1.5" strokeDasharray="3 2" className="animate-[spin_20s_linear_infinite]" />
+              <path d="M16 8C11.58 8 8 11.58 8 16C8 19.5 10.5 22.5 14 23.5V19.5C12.5 18.8 11.5 17.5 11.5 16C11.5 13.5 13.5 11.5 16 11.5C18.5 11.5 20.5 13.5 20.5 16C20.5 17.5 19.5 18.8 18 19.5V23.5C21.5 22.5 24 19.5 24 16C24 11.58 20.42 8 16 8Z" fill="url(#auraGrad)" />
+              <circle cx="16" cy="16" r="2.5" fill="#FFFFFF" className="shadow-md" />
+            </svg>
           </div>
           <div>
-            <h1 className="text-sm font-black text-text-primary tracking-wider font-display">
+            <h1 className="text-xs font-black text-text-primary tracking-wider font-display leading-tight">
               Aura - AI unified retrival assistant
             </h1>
             <p className="text-[10px] text-text-muted font-medium tracking-wide">

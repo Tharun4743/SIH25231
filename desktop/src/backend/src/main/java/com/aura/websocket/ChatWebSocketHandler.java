@@ -62,10 +62,10 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
         log.debug("Query packet received on session: {}", session.getId());
 
         try {
-            // Parse incoming JSON: {"message": "user prompt"}
-            Map<String, String> rawRequest = objectMapper.readValue(payload, Map.class);
-            String messageText = rawRequest.get("message");
-            String sessionId = rawRequest.get("sessionId");
+            // Parse incoming JSON
+            Map<String, Object> rawRequest = objectMapper.readValue(payload, Map.class);
+            String messageText = (String) rawRequest.get("message");
+            String sessionId = (String) rawRequest.get("sessionId");
             if (messageText == null || messageText.trim().isEmpty()) {
                 Map<String, Object> errorPayload = new HashMap<>();
                 errorPayload.put("type", "error");
@@ -85,8 +85,19 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
             int topK = Integer.parseInt(settingService.getSetting("top_k", "5"));
             boolean fallbackEnabled = Boolean.parseBoolean(settingService.getSetting("enable_fallback", "true"));
 
-            if (docCount == 0) {
-                // Case 1: No documents uploaded
+            boolean filesBrain = true;
+            if (rawRequest.containsKey("filesBrain")) {
+                Object val = rawRequest.get("filesBrain");
+                if (val instanceof Boolean) {
+                    filesBrain = (Boolean) val;
+                } else if (val instanceof String) {
+                    filesBrain = "true".equalsIgnoreCase((String) val) || "yes".equalsIgnoreCase((String) val);
+                }
+            }
+            String filterDocId = (String) rawRequest.get("filterDocId");
+
+            if (!filesBrain || docCount == 0) {
+                // Case 1: No documents uploaded or Files Brain is disabled
                 String systemPrompt = "You are Aura - AI unified retrival assistant, an offline AI assistant. Answer the user's question using your general knowledge.";
                 ollamaService.generateRAG(messageText, systemPrompt, (token) -> {
                     try {
@@ -100,12 +111,12 @@ public class ChatWebSocketHandler extends TextWebSocketHandler {
                     }
                 });
             } else {
-                // Case 2: One or more files uploaded
+                // Case 2: One or more files uploaded and Files Brain is active
                 // 1. Generate Query Vector
                 float[] queryVec = embeddingService.embed(messageText);
 
-                // 2. Fetch nearest sources from ChromaDB (using settings top_k)
-                List<SearchResult> searchResults = chromaDBService.query("aura-documents", queryVec, topK);
+                // 2. Fetch nearest sources from ChromaDB (using settings top_k and filterDocId)
+                List<SearchResult> searchResults = chromaDBService.query("aura-documents", queryVec, topK, filterDocId);
 
                 boolean relevant = false;
                 if (searchResults != null && !searchResults.isEmpty()) {

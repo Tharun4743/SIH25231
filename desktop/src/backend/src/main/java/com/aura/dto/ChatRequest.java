@@ -8,4 +8,6 @@ import lombok.*;
 public class ChatRequest {
     private String message;
     private String sessionId;
+    private Boolean filesBrain;
+    private String filterDocId;
 }

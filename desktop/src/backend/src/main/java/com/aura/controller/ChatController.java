@@ -66,16 +66,19 @@ public class ChatController {
             int topK = Integer.parseInt(settingService.getSetting("top_k", "5"));
             boolean fallbackEnabled = Boolean.parseBoolean(settingService.getSetting("enable_fallback", "true"));
 
-            if (docCount == 0) {
-                // Case 1: No documents uploaded
+            boolean filesBrain = request.getFilesBrain() == null || request.getFilesBrain();
+            String filterDocId = request.getFilterDocId();
+
+            if (!filesBrain || docCount == 0) {
+                // Case 1: No documents uploaded or Files Brain is disabled
                 responseText = ollamaService.generate(queryText, "", "You are Aura - AI unified retrival assistant, an offline AI assistant. Answer the user's question using your general knowledge.", modelName, temperature);
             } else {
-                // Case 2: One or more files uploaded
+                // Case 2: One or more files uploaded and Files Brain is active
                 // 1. Generate query embedding vector
                 float[] queryVec = embeddingService.embed(queryText);
 
-                // 2. ChromaDB query for top matching chunks (using settings top_k)
-                List<SearchResult> searchResults = chromaDBService.query("aura-documents", queryVec, topK);
+                // 2. ChromaDB query for top matching chunks (using settings top_k and filterDocId)
+                List<SearchResult> searchResults = chromaDBService.query("aura-documents", queryVec, topK, filterDocId);
 
                 // Check if any context is relevant
                 boolean relevant = false;

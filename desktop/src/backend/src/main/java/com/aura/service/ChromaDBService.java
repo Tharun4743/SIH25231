@@ -170,6 +170,11 @@ public class ChromaDBService {
 
     @SuppressWarnings("unchecked")
     public List<SearchResult> query(String collectionId, float[] queryEmbedding, int topK) {
+        return query(collectionId, queryEmbedding, topK, null);
+    }
+
+    @SuppressWarnings("unchecked")
+    public List<SearchResult> query(String collectionId, float[] queryEmbedding, int topK, String filterDocId) {
         List<Map<String, Object>> snapshot;
         lock.readLock().lock();
         try {
@@ -181,6 +186,12 @@ public class ChromaDBService {
 
         List<ScoredItem> scored = new ArrayList<>(snapshot.size());
         for (Map<String, Object> item : snapshot) {
+            Map<String, Object> meta = (Map<String, Object>) item.get("metadata");
+            if (filterDocId != null && !filterDocId.trim().isEmpty()) {
+                if (meta == null || !filterDocId.equals(meta.get("docId"))) {
+                    continue;
+                }
+            }
             float[] vec = (float[]) item.get("embedding");
             if (vec == null) continue;
             double score = cosineSimilarity(queryEmbedding, vec);

@@ -73,9 +73,9 @@ export function useWebSocket({ onToken, onDone, onError }: UseWebSocketOptions) 
     };
   }, []);
 
-  const sendMessage = useCallback((message: string, sessionId: string) => {
+  const sendMessage = useCallback((message: string, sessionId: string, filesBrain?: boolean, filterDocId?: string | null) => {
     if (wsRef.current?.readyState === WebSocket.OPEN) {
-      wsRef.current.send(JSON.stringify({ message, sessionId }));
+      wsRef.current.send(JSON.stringify({ message, sessionId, filesBrain, filterDocId }));
     } else {
       console.error("WebSocket is not active.");
       onErrorRef.current("Local intelligence engine is offline. Reconnecting...");
