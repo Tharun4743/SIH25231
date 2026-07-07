@@ -1,6 +1,0 @@
-{
-  "name": "Aura - AI unified retrival assistant",
-  "description": "Aura - AI unified retrival assistant is an offline-capable, high-fidelity local RAG system with document chunking, semantic audio transcription, and visual similarity analysis.",
-  "requestFramePermissions": ["microphone"],
-  "majorCapabilities": ["MAJOR_CAPABILITY_OFFLINE_LOCAL_RAG"]
-}

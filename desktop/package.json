@@ -1,7 +1,7 @@
 {
   "name": "aura-desktop",
   "version": "1.0.0",
-  "description": "Aura - AI unified retrival assistant",
+  "description": "Aura — AI Unified Retrieval Assistant",
   "main": "main.js",
   "scripts": {
     "start": "electron .",
@@ -13,14 +13,23 @@
     "electron-builder": "^24.13.3"
   },
   "build": {
-    "appId": "com.aura.desktop",
-    "productName": "Aura - AI unified retrival assistant",
+    "appId": "com.aura.airetrieval.desktop",
+    "productName": "Aura",
+    "copyright": "Copyright © 2025 Aura AI",
     "compression": "normal",
     "removePackageScripts": true,
     "nodeGypRebuild": false,
     "buildDependenciesFromSource": false,
-    "directories": { "output": "dist" },
-    "files": ["main.js", "loading.html", "package.json"],
+    "directories": {
+      "output": "dist"
+    },
+    "files": [
+      "main.js",
+      "preload.js",
+      "loading.html",
+      "package.json",
+      "assets/**/*"
+    ],
     "extraResources": [
       { "from": "jre",          "to": "jre",          "filter": ["**/*"] },
       { "from": "backend",      "to": "backend",       "filter": ["**/*"] },
@@ -28,16 +37,33 @@
       { "from": ".venv",        "to": ".venv",         "filter": ["**/*"] },
       { "from": "data",         "to": "data",          "filter": ["**/*"] }
     ],
-    "win": { "target": ["nsis", "portable"] },
+    "win": {
+      "target": [
+        { "target": "appx",     "arch": ["x64"] }
+      ],
+      "icon": "assets/icon.ico",
+      "publisherName": "Tharunkumar K"
+    },
     "nsis": {
       "oneClick": true,
       "perMachine": false,
       "createDesktopShortcut": "always",
       "createStartMenuShortcut": true,
-      "shortcutName": "Aura - AI unified retrival assistant",
-      "uninstallDisplayName": "Aura - AI unified retrival assistant",
+      "shortcutName": "Aura",
+      "uninstallDisplayName": "Aura",
       "installerLanguages": ["en_US"],
-      "allowElevation": false
-    }
+      "allowElevation": false,
+      "runAfterFinish": true
+    },
+    "appx": {
+  "applicationId": "AuraAIUnifiedRetrievalAssistant",
+  "backgroundColor": "#0F172A",
+  "displayName": "Aura",
+  "identityName": "AuraAIUnifiedRetrievalAssistant",
+  "publisher": "CN=TharunkumarK",
+  "publisherDisplayName": "Tharunkumar K",
+  "languages": ["en-US"]
+},
+    "artifactBuildCompleted": null
   }
 }

@@ -1,0 +1,59 @@
+server:
+  port: 8080
+
+spring:
+  datasource:
+    url: jdbc:sqlite:./data/aura.db
+    driver-class-name: org.sqlite.JDBC
+  jpa:
+    hibernate:
+      ddl-auto: update
+  servlet:
+    multipart:
+      max-file-size: 100MB
+      max-request-size: 100MB
+
+aura:
+  ollama:
+    url: http://localhost:11434
+    models:
+      llm: llama3
+      embedding: nomic-embed-text
+    gpu:
+      # CF-05 FIX: num-gpu defaulted to 0 (CPU-safe).
+      # Value 33 caused failures on all CPU-only systems (the majority of Store users).
+      # Users with NVIDIA GPUs can increase this via Settings → System Configuration.
+      num-gpu: 0
+      num-thread: 4
+      num-ctx: 4096
+      temperature: 0.1
+      top-p: 0.9
+      repeat-penalty: 1.1
+    timeouts:
+      connect-ms: 5000
+      read-ms: 120000
+  chroma:
+    url: http://localhost:8001
+    collections:
+      documents: aura-documents
+      audio: aura-audio
+      images: aura-images
+    top-k: 3
+  upload:
+    dir: ./uploads
+  chunk:
+    size: 500
+    overlap: 100
+  sidecars:
+    whisper:
+      script: ./sidecars/whisper_sidecar.py
+      # W-04 FIX: Default to CPU for universal compatibility.
+      # Users can override to 'cuda' in Settings if they have an NVIDIA GPU.
+      device: cpu
+      compute-type: int8
+      model-cache: ./models/whisper
+    clip:
+      script: ./sidecars/clip_sidecar.py
+      model-path: ./models/clip-vit-base-patch32
+      # W-04 FIX: Default to CPU.
+      device: cpu

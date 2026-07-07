@@ -3,7 +3,7 @@ const fs = require('fs');
 const path = require('path');
 const os = require('os');
 
-const ROOT_DIR = path.join(__dirname, '../..');
+const ROOT_DIR = path.join(__dirname, '../src');
 const DESKTOP_DIR = path.join(__dirname, '..');
 
 // OPTIMIZATION C: Set electron-builder environments for maximum packaging speed
@@ -64,8 +64,11 @@ async function main() {
         fs.mkdirSync(tempFrontendDir, { recursive: true });
 
         // Copy JAR and vector cache
+        const jarName = fs.existsSync(path.join(backendDir, 'target/aura-backend.jar'))
+            ? 'aura-backend.jar'
+            : 'aura-backend-1.0.0.jar';
         fs.copyFileSync(
-            path.join(backendDir, 'target/aura-backend-0.0.1-SNAPSHOT.jar'),
+            path.join(backendDir, 'target', jarName),
             path.join(tempBackendDir, 'aura-backend.jar')
         );
         console.log(`[AURA BUILD] Copied JAR: ${path.join(tempBackendDir, 'aura-backend.jar')}`);
@@ -123,10 +126,12 @@ async function main() {
         // Step 8: Rename output executables to match target specifications
         console.log('\n[AURA BUILD] Post-processing target deliverables...');
         const distDir = path.join(DESKTOP_DIR, 'dist');
-        const oldSetup = path.join(distDir, 'AURA Desktop Setup 1.0.0.exe');
-        const newSetup = path.join(distDir, 'AURA-Desktop-Setup-1.0.0.exe');
-        const oldPortable = path.join(distDir, 'AURA Desktop 1.0.0.exe');
-        const newPortable = path.join(distDir, 'AURA-Desktop-1.0.0-portable.exe');
+        const oldSetup = path.join(distDir, 'Aura Setup 1.0.0.exe');
+        const newSetup = path.join(distDir, 'Aura-Setup-1.0.0.exe');
+        const oldPortable = path.join(distDir, 'Aura 1.0.0.exe');
+        const newPortable = path.join(distDir, 'Aura-1.0.0-portable.exe');
+        const oldAppx = path.join(distDir, 'Aura 1.0.0.appx');
+        const newAppx = path.join(distDir, 'Aura-1.0.0.msix');
 
         if (fs.existsSync(oldSetup)) {
             if (fs.existsSync(newSetup)) fs.rmSync(newSetup);
@@ -137,6 +142,11 @@ async function main() {
             if (fs.existsSync(newPortable)) fs.rmSync(newPortable);
             fs.renameSync(oldPortable, newPortable);
             console.log(`[AURA BUILD] Renamed: ${newPortable}`);
+        }
+        if (fs.existsSync(oldAppx)) {
+            if (fs.existsSync(newAppx)) fs.rmSync(newAppx);
+            fs.renameSync(oldAppx, newAppx);
+            console.log(`[AURA BUILD] Generated MSIX: ${newAppx}`);
         }
 
         // Step 9: Clean temporary build directories

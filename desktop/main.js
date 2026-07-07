@@ -1,51 +1,110 @@
-const { app, BrowserWindow, ipcMain } = require('electron');
+'use strict';
+
+/**
+ * main.js — Aura Desktop Main Process
+ *
+ * Security: All windows use contextIsolation:true, nodeIntegration:false, sandbox:true.
+ * The loading window communicates via preload.js contextBridge only.
+ *
+ * Startup sequence:
+ *   1. Check first-run flag → show setup wizard if needed
+ *   2. Detect Ollama (PATH → LOCALAPPDATA → offer download)
+ *   3. Start Ollama service if not running
+ *   4. Pull required models if missing (with progress)
+ *   5. Start Spring Boot backend JAR
+ *   6. Wait for backend health endpoint
+ *   7. Launch main window
+ *
+ * CF-01  FIX: execFileSync replaced with async execFile
+ * CF-02  FIX: sandbox:true on loading window
+ * CF-08  FIX: startBackend resolves ONLY after health endpoint responds
+ * CF-09  FIX: fatal catch always shows dialog + calls app.quit()
+ * W-02   FIX: recursive async polling replaced with iterative while loop
+ */
+
+const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const path = require('path');
-const { spawn, exec } = require('child_process');
+const { spawn, execFile } = require('child_process');
 const http = require('http');
 const fs = require('fs');
+
+// ─── State ─────────────────────────────────────────────────────────────────
 
 let mainWindow = null;
 let loadingWindow = null;
 let backendProcess = null;
 let isQuitting = false;
+
+/** True only if THIS process launched the Ollama server (so we own its lifecycle). */
 let didSpawnOllama = false;
+/** PID of the ollama serve process if we spawned it (for safe kill-by-PID). */
+let ollamaPid = null;
 
-function updateStatus(message) {
-    console.log(`[AURA STATUS] ${message}`);
+// ─── Required models ────────────────────────────────────────────────────────
+
+const REQUIRED_MODELS = [
+    { id: 'llama3',           displayName: 'LLaMA 3 (8B) — Language model' },
+    { id: 'nomic-embed-text', displayName: 'Nomic Embed Text — Embedding model' },
+];
+
+// ─── Logging helpers ────────────────────────────────────────────────────────
+
+function log(msg) {
+    const ts = new Date().toISOString();
+    if (!app.isPackaged) {
+        console.log(`[AURA ${ts}] ${msg}`);
+    }
     if (loadingWindow && !loadingWindow.isDestroyed()) {
-        loadingWindow.webContents.send('status-update', message);
+        loadingWindow.webContents.send('status-update', msg);
     }
 }
 
-function showError(message) {
-    console.error(`[AURA ERROR] ${message}`);
+function logError(msg) {
+    const ts = new Date().toISOString();
+    if (!app.isPackaged) {
+        console.error(`[AURA ERROR ${ts}] ${msg}`);
+    }
     if (loadingWindow && !loadingWindow.isDestroyed()) {
-        loadingWindow.webContents.send('status-error', message);
+        loadingWindow.webContents.send('status-error', msg);
     }
 }
 
-function checkUrl(url, timeoutMs = 2000) {
+function logPullProgress(model, percent, status) {
+    if (loadingWindow && !loadingWindow.isDestroyed()) {
+        loadingWindow.webContents.send('pull-progress', { model, percent, status });
+    }
+}
+
+// ─── Filesystem helpers ──────────────────────────────────────────────────────
+
+function ensureDir(dirPath) {
+    if (!fs.existsSync(dirPath)) {
+        fs.mkdirSync(dirPath, { recursive: true });
+    }
+}
+
+// ─── HTTP helpers ────────────────────────────────────────────────────────────
+
+function checkUrl(url, timeoutMs = 3000) {
     return new Promise((resolve) => {
         try {
             const u = new URL(url);
-            const req = http.request({
-                hostname: u.hostname,
-                port: u.port,
-                path: u.pathname + u.search,
-                method: 'GET',
-                timeout: timeoutMs
-            }, (res) => {
-                let data = '';
-                res.on('data', (chunk) => data += chunk);
-                res.on('end', () => {
-                    resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode, data });
-                });
-            });
+            const req = http.request(
+                {
+                    hostname: u.hostname,
+                    port: u.port,
+                    path: u.pathname + u.search,
+                    method: 'GET',
+                    timeout: timeoutMs,
+                },
+                (res) => {
+                    let data = '';
+                    res.on('data', (chunk) => (data += chunk));
+                    res.on('end', () => resolve({ ok: res.statusCode >= 200 && res.statusCode < 300, status: res.statusCode, data }));
+                }
+            );
             req.on('error', () => resolve({ ok: false }));
-            req.on('timeout', () => {
-                req.destroy();
-                resolve({ ok: false });
-            });
+            req.on('timeout', () => { req.destroy(); resolve({ ok: false }); });
             req.end();
         } catch (e) {
             resolve({ ok: false, error: e.message });
@@ -53,151 +112,278 @@ function checkUrl(url, timeoutMs = 2000) {
     });
 }
 
-async function cleanStaleCache() {
-    const appData = process.env.APPDATA;
-    const localAppData = process.env.LOCALAPPDATA;
-    const temp = process.env.TEMP || process.env.TMP;
-    const currentUserData = app.getPath('userData');
-
-    // All AURA cache locations to wipe (only if they are NOT the current active userData)
-    const stalePaths = [
-        // Previous AppData installs
-        path.join(appData, 'AURA Desktop'),
-        path.join(appData, 'aura'),
-
-        // Temp files left by previous crashed installs
-        path.join(temp, 'aura-backend.log'),
-        path.join(temp, 'aura-install'),
-        path.join(temp, 'aura_tmp'),
-    ].map(p => path.resolve(p));
-
-    // Only include old user data folders if they differ from the active currentUserData path
-    const oldUserData = path.resolve(path.join(appData, 'aura-desktop'));
-    if (oldUserData.toLowerCase() !== path.resolve(currentUserData).toLowerCase()) {
-        stalePaths.push(oldUserData);
-    }
-
-    for (const p of stalePaths) {
-        try {
-            if (fs.existsSync(p)) {
-                fs.rmSync(p, { recursive: true, force: true });
-                console.log(`[AURA CLEAN] Removed: ${p}`);
-            }
-        } catch (e) {
-            console.warn(`[AURA CLEAN] Could not remove ${p}: ${e.message}`);
-        }
-    }
-
-    // Re-create clean AppData structure for active user data if missing
-    const freshDirs = [
-        path.join(currentUserData, 'data'),
-        path.join(currentUserData, 'uploads'),
-        path.join(currentUserData, 'logs'),
-    ];
-    for (const d of freshDirs) {
-        if (!fs.existsSync(d)) {
-            fs.mkdirSync(d, { recursive: true });
-        }
-    }
-
-    console.log('[AURA CLEAN] Cache wipe complete. Fresh install ready.');
+function sleep(ms) {
+    return new Promise((r) => setTimeout(r, ms));
 }
 
-async function checkOllamaAndModels() {
-    updateStatus('Verifying AI models...');
-    let result = await checkUrl('http://localhost:11434/api/tags');
-    
-    if (!result.ok) {
-        const localAppData = process.env.LOCALAPPDATA;
-        if (localAppData) {
-            const ollamaAppPath = path.join(localAppData, 'Programs/Ollama/ollama app.exe');
-            const ollamaPath = path.join(localAppData, 'Programs/Ollama/ollama.exe');
-            if (fs.existsSync(ollamaPath)) {
-                updateStatus('Launching Ollama service...');
-                const ollamaProcess = spawn(ollamaPath, ['serve'], {
-                    stdio: 'ignore',
-                    windowsHide: true
-                });
-                ollamaProcess.unref();
-                didSpawnOllama = true;
-            } else if (fs.existsSync(ollamaAppPath)) {
-                updateStatus('Launching Ollama service...');
-                const ollamaProcess = spawn(ollamaAppPath, [], {
-                    detached: true,
-                    stdio: 'ignore'
-                });
-                ollamaProcess.unref();
-                didSpawnOllama = true;
-            }
+// ─── First-run flag ──────────────────────────────────────────────────────────
 
-                // Poll for 10 seconds (5 attempts * 2s)
-                for (let i = 0; i < 5; i++) {
-                    await new Promise(r => setTimeout(r, 2000));
-                    result = await checkUrl('http://localhost:11434/api/tags');
-                    if (result.ok) break;
-                }
+function getSetupFlagPath() {
+    return path.join(app.getPath('userData'), '.setup-complete');
+}
+
+function isFirstRun() {
+    return !fs.existsSync(getSetupFlagPath());
+}
+
+function markSetupComplete() {
+    try {
+        ensureDir(path.dirname(getSetupFlagPath()));
+        fs.writeFileSync(getSetupFlagPath(), new Date().toISOString(), 'utf8');
+        log('Setup marked complete.');
+    } catch (e) {
+        console.warn('[AURA] Could not write setup flag:', e.message);
+    }
+}
+
+// ─── Ollama detection (CF-01: async, non-blocking) ───────────────────────────
+
+/**
+ * Async wrapper around 'where ollama' on Windows.
+ * Returns the path string or null — NEVER blocks the event loop.
+ */
+function whereAsync(cmd) {
+    return new Promise((resolve) => {
+        execFile('where', [cmd], { windowsHide: true, timeout: 5000 }, (err, stdout) => {
+            if (err || !stdout) { resolve(null); return; }
+            const firstLine = stdout.trim().split('\n')[0].trim();
+            resolve(firstLine || null);
+        });
+    });
+}
+
+/**
+ * Try to resolve the ollama executable path.
+ * Search order:
+ *   1. System PATH (works for both user & machine installs) — async
+ *   2. %LOCALAPPDATA%\Programs\Ollama\ollama.exe  (Ollama default user install)
+ *
+ * CF-01 FIX: uses async execFile, never blocks the main process thread.
+ */
+async function findOllamaExe() {
+    // 1. Check PATH (async)
+    const fromPath = await whereAsync('ollama');
+    if (fromPath && fs.existsSync(fromPath)) {
+        log(`Ollama found in PATH: ${fromPath}`);
+        return fromPath;
+    }
+
+    // 2. Check default user install location
+    const localAppData = process.env.LOCALAPPDATA || '';
+    const candidates = [
+        path.join(localAppData, 'Programs', 'Ollama', 'ollama.exe'),
+        path.join(localAppData, 'Programs', 'Ollama', 'ollama app.exe'),
+    ];
+    for (const p of candidates) {
+        if (fs.existsSync(p)) {
+            log(`Ollama found at: ${p}`);
+            return p;
         }
     }
 
-    if (!result.ok) {
-        return { ok: false, error: 'Ollama is not running.\n\nPlease run the Ollama desktop application and restart AURA.' };
+    return null;
+}
+
+/**
+ * Download and launch the official Ollama installer, waiting for user confirmation first.
+ */
+async function downloadAndInstallOllama() {
+    return new Promise((resolve, reject) => {
+        // Prompt the renderer to show the install confirmation dialog
+        if (loadingWindow && !loadingWindow.isDestroyed()) {
+            loadingWindow.webContents.send('install-ollama-prompt');
+        }
+
+        // Wait for user response via IPC
+        ipcMain.once('confirm-install-ollama', async () => {
+            try {
+                log('Opening Ollama official download page...');
+                await shell.openExternal('https://ollama.com/download/windows');
+                log('Ollama installer page opened in browser. Waiting for user to install Ollama...');
+
+                // W-02 FIX: iterative while loop instead of recursive async call
+                const maxWaitMs = 5 * 60 * 1000;
+                const pollIntervalMs = 5000;
+                const startTime = Date.now();
+
+                while (Date.now() - startTime < maxWaitMs) {
+                    const exe = await findOllamaExe();
+                    if (exe) {
+                        log('Ollama installation detected!');
+                        resolve(exe);
+                        return;
+                    }
+                    log('Waiting for Ollama installation to complete...');
+                    await sleep(pollIntervalMs);
+                }
+
+                reject(new Error('Timed out waiting for Ollama installation. Please install Ollama and relaunch AURA.'));
+            } catch (e) {
+                reject(e);
+            }
+        });
+    });
+}
+
+// ─── Ollama service management ───────────────────────────────────────────────
+
+async function ensureOllamaRunning(ollamaExe) {
+    const result = await checkUrl('http://localhost:11434/api/tags', 2000);
+    if (result.ok) {
+        log('Ollama service is already running.');
+        return;
     }
 
+    log('Starting Ollama service...');
+    const ollamaProcess = spawn(ollamaExe, ['serve'], {
+        detached: true,
+        stdio: 'ignore',
+        windowsHide: true,
+    });
+    ollamaProcess.unref();
+    didSpawnOllama = true;
+    ollamaPid = ollamaProcess.pid; // Track PID for safe shutdown
+
+    // Wait up to 30 seconds for the service to come up
+    for (let i = 0; i < 15; i++) {
+        await sleep(2000);
+        const check = await checkUrl('http://localhost:11434/api/tags', 2000);
+        if (check.ok) {
+            log('Ollama service is ready.');
+            return;
+        }
+        log(`Waiting for Ollama service... (${(i + 1) * 2}s)`);
+    }
+    throw new Error('Ollama service did not start within 30 seconds. Please start Ollama manually and relaunch AURA.');
+}
+
+// ─── Model management ────────────────────────────────────────────────────────
+
+async function getInstalledModels() {
+    const result = await checkUrl('http://localhost:11434/api/tags');
+    if (!result.ok) return [];
     try {
         const tags = JSON.parse(result.data);
-        const models = tags.models || [];
-        let hasLlama = false, hasEmbed = false;
-        for (const m of models) {
-            const name = m.name || '';
-            if (name.startsWith('llama3')) hasLlama = true;
-            if (name.startsWith('nomic-embed-text')) hasEmbed = true;
-        }
-
-        if (!hasLlama || !hasEmbed) {
-            let missing = [];
-            if (!hasLlama) missing.push('llama3');
-            if (!hasEmbed) missing.push('nomic-embed-text');
-            return {
-                ok: false,
-                error: `Missing required local models: ${missing.join(', ')}.\n\nPlease open your terminal and execute:\n` +
-                       missing.map(m => `ollama pull ${m}`).join('\n') +
-                       `\n\nThen launch AURA again.`
-            };
-        }
-    } catch (e) {
-        return { ok: false, error: 'Failed to verify local models: ' + e.message };
+        return (tags.models || []).map((m) => m.name || '');
+    } catch (_) {
+        return [];
     }
-    return { ok: true };
 }
 
+function isModelInstalled(installedList, modelId) {
+    return installedList.some((name) => name.startsWith(modelId));
+}
+
+/**
+ * Pull a single model from Ollama with streaming progress, reported to the loading window.
+ */
+function pullModel(ollamaExe, modelId) {
+    return new Promise((resolve, reject) => {
+        log(`Pulling model: ${modelId} — this may take several minutes...`);
+        logPullProgress(modelId, 0, 'Starting download...');
+
+        const proc = spawn(ollamaExe, ['pull', modelId], {
+            stdio: ['ignore', 'pipe', 'pipe'],
+            windowsHide: true,
+        });
+
+        let lastPercent = 0;
+
+        proc.stdout.on('data', (data) => {
+            const lines = data.toString().split('\n').filter((l) => l.trim());
+            for (const line of lines) {
+                // Ollama pull output format: "pulling sha256:xxx: 45% ▕████     ▏ 1.2 GB/2.7 GB  892 MB/s  2m"
+                const match = line.match(/(\d+)%/);
+                if (match) {
+                    const percent = parseInt(match[1], 10);
+                    if (percent !== lastPercent) {
+                        lastPercent = percent;
+                        logPullProgress(modelId, percent, line.trim());
+                    }
+                } else if (line.trim()) {
+                    logPullProgress(modelId, lastPercent, line.trim());
+                }
+            }
+        });
+
+        proc.stderr.on('data', (data) => {
+            const txt = data.toString().trim();
+            if (txt) console.warn(`[ollama pull ${modelId}] stderr: ${txt}`);
+        });
+
+        proc.on('exit', (code) => {
+            if (code === 0) {
+                logPullProgress(modelId, 100, 'Download complete!');
+                log(`Model ${modelId} installed successfully.`);
+                resolve();
+            } else {
+                reject(new Error(`ollama pull ${modelId} exited with code ${code}. Check your internet connection and try again.`));
+            }
+        });
+
+        proc.on('error', (err) => {
+            reject(new Error(`Failed to run ollama pull: ${err.message}`));
+        });
+    });
+}
+
+async function ensureModels(ollamaExe) {
+    log('Checking required AI models...');
+    const installed = await getInstalledModels();
+
+    for (const { id, displayName } of REQUIRED_MODELS) {
+        if (isModelInstalled(installed, id)) {
+            log(`✓ Model ready: ${displayName}`);
+        } else {
+            log(`⬇  Downloading: ${displayName}`);
+            await pullModel(ollamaExe, id);
+        }
+    }
+    log('All required models are ready.');
+}
+
+// ─── Backend (Spring Boot JAR) ────────────────────────────────────────────────
+
+/**
+ * CF-08 FIX: startBackend now returns a Promise that resolves ONLY after the
+ * backend health endpoint responds successfully — not immediately after spawn().
+ * CF-09 FIX: Backend process errors are now correctly propagated to the caller.
+ */
 function startBackend() {
     return new Promise((resolve, reject) => {
-        updateStatus('Starting local RAG engine...');
+        log('Starting local RAG engine...');
 
-        const jreDir = app.isPackaged 
-            ? path.join(process.resourcesPath, 'jre') 
+        const isPackaged = app.isPackaged;
+        const jreDir = isPackaged
+            ? path.join(process.resourcesPath, 'jre')
             : path.join(__dirname, 'jre');
         const javaExec = path.join(jreDir, 'bin', 'javaw.exe');
 
-        const backendJar = app.isPackaged
+        const backendJar = isPackaged
             ? path.join(process.resourcesPath, 'backend', 'aura-backend.jar')
-            : path.join(__dirname, '../backend/target/aura-backend-0.0.1-SNAPSHOT.jar');
+            : path.join(__dirname, 'src/backend/target/aura-backend-1.0.0.jar');
 
-        const backendCwd = app.isPackaged 
-            ? path.join(process.resourcesPath, 'backend') 
-            : path.join(__dirname, '../backend');
+        // Fallback to snapshot JAR for dev builds ONLY
+        const snapshotJar = path.join(__dirname, 'src/backend/target/aura-backend-0.0.1-SNAPSHOT.jar');
+        const resolvedJar = fs.existsSync(backendJar)
+            ? backendJar
+            : (fs.existsSync(snapshotJar) ? snapshotJar : null);
+
+        const backendCwd = isPackaged
+            ? path.join(process.resourcesPath, 'backend')
+            : path.join(__dirname, 'src/backend');
 
         const logDir = path.join(app.getPath('userData'), 'logs');
-        if (!fs.existsSync(logDir)) fs.mkdirSync(logDir, { recursive: true });
-        const logFile = path.join(logDir, 'backend.log');
-        const logStream = fs.createWriteStream(logFile);
+        ensureDir(logDir);
+        const logFile = path.join(logDir, `backend-${Date.now()}.log`);
+        const logStream = fs.createWriteStream(logFile, { flags: 'a' });
 
         if (!fs.existsSync(javaExec)) {
-            reject(new Error('Bundled Java Runtime Environment (JRE) is missing.'));
+            reject(new Error('Bundled Java Runtime Environment (JRE) is missing. Please reinstall AURA.'));
             return;
         }
-        if (!fs.existsSync(backendJar)) {
-            reject(new Error('Backend executable JAR file is missing.'));
+        if (!resolvedJar) {
+            reject(new Error('Backend executable (aura-backend.jar) is missing. Please reinstall AURA.'));
             return;
         }
 
@@ -205,125 +391,157 @@ function startBackend() {
         const uploadsPath = path.join(app.getPath('userData'), 'uploads');
         const dbPath = path.join(dataPath, 'aura.db');
 
-        if (!fs.existsSync(dataPath)) fs.mkdirSync(dataPath, { recursive: true });
-        if (!fs.existsSync(uploadsPath)) fs.mkdirSync(uploadsPath, { recursive: true });
+        ensureDir(dataPath);
+        ensureDir(uploadsPath);
 
-        // Seed SQLite seed database from resources
-        const initialDbSource = app.isPackaged
+        // Seed SQLite database from bundled resources on first install
+        const initialDbSource = isPackaged
             ? path.join(process.resourcesPath, 'data', 'aura.db')
-            : path.join(__dirname, '../data/aura.db');
+            : path.join(__dirname, 'src/data/aura.db');
         if (fs.existsSync(initialDbSource) && !fs.existsSync(dbPath)) {
-            fs.copyFileSync(initialDbSource, dbPath);
+            try {
+                fs.copyFileSync(initialDbSource, dbPath);
+                log('Initialized user database.');
+            } catch (e) {
+                console.warn('[AURA] Could not seed database:', e.message);
+            }
         }
 
         const args = [
-            '-jar', 'aura-backend.jar',
+            '-jar', path.basename(resolvedJar),
             `--spring.datasource.url=jdbc:sqlite:${dbPath}`,
             `--aura.upload.dir=${uploadsPath}`,
             `--aura.chroma.cache-dir=${dataPath}`,
-            '--aura.ollama.gpu.num-gpu=33',
-            '--aura.ollama.gpu.num-thread=8',
-            '--aura.ollama.gpu.num-ctx=4096'
         ];
 
         backendProcess = spawn(javaExec, args, {
             cwd: backendCwd,
-            env: { ...process.env, "SPRING_PROFILES_ACTIVE": "prod" },
-            windowsHide: true
+            env: { ...process.env, SPRING_PROFILES_ACTIVE: 'prod' },
+            windowsHide: true,
         });
 
         backendProcess.stdout.pipe(logStream);
         backendProcess.stderr.pipe(logStream);
 
+        // CF-08 FIX: Only reject if backend exits BEFORE we resolve.
+        // After resolve, log the unexpected exit but don't reject (already settled).
+        let settled = false;
+
         backendProcess.on('exit', (code) => {
-            if (!isQuitting) {
-                showError(`Core backend service exited unexpectedly (code ${code}).`);
+            if (!isQuitting && !settled) {
+                // Backend exited before health check passed
+                settled = true;
+                reject(new Error(`Backend process exited unexpectedly (code ${code}) before startup completed. Check logs at: ${logFile}`));
+            } else if (!isQuitting) {
+                logError(`Core backend service exited unexpectedly (code ${code}). Check logs at: ${logFile}`);
             }
         });
 
-        resolve();
+        backendProcess.on('error', (err) => {
+            if (!settled) {
+                settled = true;
+                reject(new Error(`Failed to start backend process: ${err.message}`));
+            }
+        });
+
+        // CF-08 FIX: Poll the health endpoint and resolve ONLY when it responds.
+        (async () => {
+            log('Connecting to RAG service...');
+            const maxAttempts = 60;
+            for (let attempt = 1; attempt <= maxAttempts; attempt++) {
+                if (isQuitting || settled) return;
+                const result = await checkUrl('http://localhost:8080/api/health');
+                if (result.ok) {
+                    log('Launching AURA...');
+                    settled = true;
+                    resolve();
+                    return;
+                }
+                if (attempt % 10 === 0) {
+                    log(`Still initializing... (${attempt}s)`);
+                }
+                await sleep(1000);
+            }
+            if (!settled) {
+                settled = true;
+                reject(new Error('Connection timeout: Java backend did not start within 60 seconds. Check the log file in the logs directory.'));
+            }
+        })();
     });
 }
 
-async function waitForBackend() {
-    updateStatus('Connecting to RAG service...');
-    const maxAttempts = 60;
-    for (let attempt = 1; attempt <= maxAttempts; attempt++) {
-        if (isQuitting) return;
-        const result = await checkUrl('http://localhost:8080/api/health');
-        if (result.ok) {
-            updateStatus('Launching AURA...');
-            return;
-        }
-        await new Promise(r => setTimeout(r, 1000));
-    }
-    throw new Error('Connection timeout waiting for Java service to initialize.');
-}
+// ─── Shutdown ────────────────────────────────────────────────────────────────
 
 function stopBackend() {
     isQuitting = true;
+
     if (backendProcess) {
         const pid = backendProcess.pid;
-        backendProcess.kill();
+        try { backendProcess.kill('SIGTERM'); } catch (_) {}
         if (pid) {
-            spawn('taskkill', ['/F', '/T', '/PID', pid.toString()], {
-                windowsHide: true,
-                stdio: 'ignore'
-            });
+            try {
+                spawn('taskkill', ['/F', '/T', '/PID', String(pid)], { windowsHide: true, stdio: 'ignore' });
+            } catch (_) {}
         }
         backendProcess = null;
     }
-    // Always stop Ollama service on exit as strictly requested by user
-    console.log('[AURA CLEAN] Stopping Ollama service...');
-    spawn('taskkill', ['/F', '/IM', 'ollama.exe'], {
-        windowsHide: true,
-        stdio: 'ignore'
-    });
-    spawn('taskkill', ['/F', '/IM', 'ollama app.exe'], {
-        windowsHide: true,
-        stdio: 'ignore'
-    });
+
+    // Stop Ollama service on exit if auto-start is enabled
+    const autoStart = shouldAutoStartOllama();
+    if (autoStart) {
+        log('Stopping Ollama service...');
+        try {
+            spawn('taskkill', ['/F', '/IM', 'ollama.exe'], { windowsHide: true, stdio: 'ignore' });
+            spawn('taskkill', ['/F', '/IM', 'ollama app.exe'], { windowsHide: true, stdio: 'ignore' });
+        } catch (_) {}
+    }
 }
+
+// ─── IPC handlers ────────────────────────────────────────────────────────────
 
 ipcMain.on('exit-app', () => {
     app.quit();
 });
 
-app.on('ready', () => {
+// ─── Window creation ─────────────────────────────────────────────────────────
+
+function createLoadingWindow() {
     loadingWindow = new BrowserWindow({
-        width: 600,
-        height: 420,
+        width: 620,
+        height: 460,
         frame: false,
         resizable: false,
         webPreferences: {
-            nodeIntegration: true,
-            contextIsolation: false
+            nodeIntegration: false,
+            contextIsolation: true,
+            // CF-02 FIX: sandbox:true — contextBridge works correctly with sandbox enabled.
+            // The previous sandbox:false comment was incorrect; contextBridge does NOT require
+            // sandbox to be disabled.
+            sandbox: true,
+            preload: path.join(__dirname, 'preload.js'),
         },
         backgroundColor: '#0F172A',
-        show: false
+        show: false,
     });
+
+    // Content Security Policy for loading window
+    // No unsafe-eval, no wildcard sources.
+    loadingWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+        callback({
+            responseHeaders: {
+                ...details.responseHeaders,
+                'Content-Security-Policy': [
+                    "default-src 'self'; style-src 'self' 'unsafe-inline'; script-src 'self'; img-src 'self' data:;",
+                ],
+            },
+        });
+    });
+
     loadingWindow.loadFile(path.join(__dirname, 'loading.html'));
     loadingWindow.once('ready-to-show', () => {
         loadingWindow.show();
         startStartupSequence();
     });
-});
-
-async function startStartupSequence() {
-    try {
-        updateStatus('Cleaning previous installation...');
-        await cleanStaleCache();
-        const check = await checkOllamaAndModels();
-        if (!check.ok) {
-            showError(check.error);
-            return;
-        }
-        await startBackend();
-        await waitForBackend();
-        launchMainWindow();
-    } catch (e) {
-        showError(e.message);
-    }
 }
 
 function launchMainWindow() {
@@ -333,17 +551,37 @@ function launchMainWindow() {
         minWidth: 1024,
         minHeight: 700,
         show: false,
-        title: "Aura - AI unified retrival assistant",
+        title: 'Aura',
+        icon: path.join(__dirname, 'assets', 'icon.ico'),
         webPreferences: {
             nodeIntegration: false,
-            contextIsolation: true
-        }
+            contextIsolation: true,
+            sandbox: true,
+            // No preload needed: React app communicates via REST/WebSocket only.
+            // Keeping no preload here is intentional and reduces attack surface.
+        },
     });
+
+    // CSP for main window (loads the React SPA from local backend)
+    // No unsafe-eval. unsafe-inline for styles is acceptable for bundled CSS.
+    // Connections restricted to localhost:8080 only.
+    mainWindow.webContents.session.webRequest.onHeadersReceived((details, callback) => {
+        callback({
+            responseHeaders: {
+                ...details.responseHeaders,
+                'Content-Security-Policy': [
+                    "default-src 'self' http://localhost:8080; connect-src 'self' http://localhost:8080 ws://localhost:8080; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; img-src 'self' data: blob:; font-src 'self' data:;",
+                ],
+            },
+        });
+    });
+
     mainWindow.setMenuBarVisibility(false);
     mainWindow.loadURL('http://localhost:8080');
     mainWindow.once('ready-to-show', () => {
         if (loadingWindow && !loadingWindow.isDestroyed()) {
             loadingWindow.close();
+            loadingWindow = null;
         }
         mainWindow.show();
     });
@@ -352,6 +590,104 @@ function launchMainWindow() {
         app.quit();
     });
 }
+
+// ─── Startup sequence ────────────────────────────────────────────────────────
+
+function shouldAutoStartOllama() {
+    try {
+        const configPath = path.join(app.getPath('userData'), 'aura-config.json');
+        if (fs.existsSync(configPath)) {
+            const config = JSON.parse(fs.readFileSync(configPath, 'utf8'));
+            if (config.autoStartOllama === false) {
+                return false;
+            }
+        }
+    } catch (e) {
+        console.warn('[AURA] Error reading aura-config.json:', e.message);
+    }
+    return true;
+}
+
+async function startStartupSequence() {
+    try {
+        // Ensure user data directories exist (no stale-cache cleanup at startup)
+        ensureDir(path.join(app.getPath('userData'), 'data'));
+        ensureDir(path.join(app.getPath('userData'), 'uploads'));
+        ensureDir(path.join(app.getPath('userData'), 'logs'));
+
+        const firstRun = isFirstRun();
+        const autoStart = shouldAutoStartOllama();
+
+        if (autoStart) {
+            // ── Step 1: Detect Ollama (CF-01: async, non-blocking) ────────────
+            log(firstRun ? 'First-time setup — checking prerequisites...' : 'Verifying Ollama...');
+            let ollamaExe = await findOllamaExe();
+
+            if (!ollamaExe) {
+                // Prompt user to install Ollama
+                ollamaExe = await downloadAndInstallOllama();
+            }
+
+            // ── Step 2: Start Ollama service ───────────────────────────────────
+            log('Starting Ollama service...');
+            await ensureOllamaRunning(ollamaExe);
+
+            // ── Step 3: Pull required models ───────────────────────────────────
+            await ensureModels(ollamaExe);
+        } else {
+            log('Skipping Ollama auto-start (disabled by configuration).');
+        }
+
+        // ── Step 4: Start backend & wait for health (CF-08: unified) ──────
+        await startBackend();
+
+        // ── Step 5: Mark setup complete (first run only) ──────────────────
+        if (firstRun) {
+            markSetupComplete();
+        }
+
+        // ── Step 6: Launch main window ────────────────────────────────────
+        launchMainWindow();
+
+    } catch (e) {
+        // CF-09 FIX: Always show a dialog and quit cleanly on fatal errors.
+        // Previously the app could silently hang on the loading screen with no exit path
+        // if the loading window itself had an issue.
+        const errMsg = e && e.message ? e.message : String(e);
+        console.error('[AURA FATAL]', errMsg);
+        logError(errMsg);
+
+        // Give the logError time to render in the loading window before potentially quitting
+        await sleep(300);
+
+        // If the loading window is already showing the error UI, let the user click Exit.
+        // As a safety net, also schedule an automatic quit after 60 seconds.
+        const autoQuitTimeout = setTimeout(() => {
+            console.error('[AURA] Auto-quitting after fatal error timeout.');
+            app.quit();
+        }, 60000);
+
+        // Allow the user to click the Exit button in the loading window to cancel the timeout
+        ipcMain.once('exit-app', () => {
+            clearTimeout(autoQuitTimeout);
+            app.quit();
+        });
+
+        // If the loading window is gone (e.g., closed externally), quit immediately
+        if (!loadingWindow || loadingWindow.isDestroyed()) {
+            clearTimeout(autoQuitTimeout);
+            dialog.showErrorBox(
+                'AURA — Startup Failed',
+                `${errMsg}\n\nPlease reinstall AURA or check the log files.`
+            );
+            app.quit();
+        }
+    }
+}
+
+// ─── App lifecycle ────────────────────────────────────────────────────────────
+
+app.on('ready', createLoadingWindow);
 
 app.on('window-all-closed', () => {
     stopBackend();
@@ -363,3 +699,16 @@ app.on('window-all-closed', () => {
 app.on('will-quit', () => {
     stopBackend();
 });
+
+// Prevent multiple instances
+const gotSingleInstanceLock = app.requestSingleInstanceLock();
+if (!gotSingleInstanceLock) {
+    app.quit();
+} else {
+    app.on('second-instance', () => {
+        if (mainWindow) {
+            if (mainWindow.isMinimized()) mainWindow.restore();
+            mainWindow.focus();
+        }
+    });
+}

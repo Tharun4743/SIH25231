@@ -3,16 +3,21 @@ __pycache__/
 *.pyc
 *.pyo
 .venv/
+desktop/src/.venv/
 
 # Java / Maven
 backend/target/
+desktop/src/backend/target/
 *.class
 *.jar
 !data/aura.db
+!desktop/src/data/aura.db
 
 # Node / Frontend
 node_modules/
+desktop/src/frontend/node_modules/
 frontend/dist/
+desktop/src/frontend/dist/
 frontend/.vite/
 desktop/dist/
 desktop/node_modules/
@@ -24,7 +29,10 @@ desktop/data/
 
 # Models (downloaded separately — never commit)
 backend/models/
+desktop/src/backend/models/
 backend/chroma_cache.json
+desktop/src/backend/chroma_cache.json
+desktop/src/backend/uploads/
 
 # OS
 .DS_Store
@@ -34,3 +42,4 @@ Thumbs.db
 
 # Developer Tools
 tools/
+desktop/src/tools/
