@@ -39,7 +39,8 @@
     ],
     "win": {
       "target": [
-        { "target": "appx",     "arch": ["x64"] }
+        { "target": "nsis", "arch": ["x64"] },
+        { "target": "appx", "arch": ["x64"] }
       ],
       "icon": "assets/icon.ico",
       "publisherName": "Tharunkumar K"
