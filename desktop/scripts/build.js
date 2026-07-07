@@ -142,12 +142,28 @@ async function main() {
             console.log(`[AURA BUILD] Generated MSIX: ${newAppx}`);
         }
 
-        // Step 9: Clean temporary build directories
-        console.log('\n[AURA BUILD] Cleaning up temporary folders...');
+        // Step 9: Clean temporary build directories and packaging residue in dist
+        console.log('\n[AURA BUILD] Cleaning up temporary folders and packaging residue...');
         cleanDirectory(tempBackendDir);
         cleanDirectory(tempFrontendDir);
         cleanDirectory(tempVenvDir);
         cleanDirectory(tempDataDir);
+
+        // Remove all other files/folders from dist except the main MSIX and Setup EXE
+        if (fs.existsSync(distDir)) {
+            const items = fs.readdirSync(distDir);
+            for (const item of items) {
+                const itemPath = path.join(distDir, item);
+                if (item !== 'Aura-Setup-1.0.0.exe' && item !== 'Aura-1.0.0.msix') {
+                    console.log(`[AURA BUILD] Removing residue: ${item}`);
+                    if (fs.lstatSync(itemPath).isDirectory()) {
+                        fs.rmSync(itemPath, { recursive: true, force: true });
+                    } else {
+                        fs.unlinkSync(itemPath);
+                    }
+                }
+            }
+        }
 
         console.log('\n===================================================');
         console.log('       AURA DESKTOP BUILD SUCCESSFUL!              ');
