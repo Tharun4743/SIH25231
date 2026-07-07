@@ -128,8 +128,6 @@ async function main() {
         const distDir = path.join(DESKTOP_DIR, 'dist');
         const oldSetup = path.join(distDir, 'Aura Setup 1.0.0.exe');
         const newSetup = path.join(distDir, 'Aura-Setup-1.0.0.exe');
-        const oldPortable = path.join(distDir, 'Aura 1.0.0.exe');
-        const newPortable = path.join(distDir, 'Aura-1.0.0-portable.exe');
         const oldAppx = path.join(distDir, 'Aura 1.0.0.appx');
         const newAppx = path.join(distDir, 'Aura-1.0.0.msix');
 
@@ -137,11 +135,6 @@ async function main() {
             if (fs.existsSync(newSetup)) fs.rmSync(newSetup);
             fs.renameSync(oldSetup, newSetup);
             console.log(`[AURA BUILD] Renamed: ${newSetup}`);
-        }
-        if (fs.existsSync(oldPortable)) {
-            if (fs.existsSync(newPortable)) fs.rmSync(newPortable);
-            fs.renameSync(oldPortable, newPortable);
-            console.log(`[AURA BUILD] Renamed: ${newPortable}`);
         }
         if (fs.existsSync(oldAppx)) {
             if (fs.existsSync(newAppx)) fs.rmSync(newAppx);
