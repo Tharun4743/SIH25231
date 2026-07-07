@@ -185,6 +185,19 @@ async function findOllamaExe() {
 }
 
 /**
+ * Try to resolve the Ollama GUI Tray App executable path.
+ * This is used to start the service cleanly without terminal flashes.
+ */
+async function findOllamaAppExe() {
+    const localAppData = process.env.LOCALAPPDATA || '';
+    const appPath = path.join(localAppData, 'Programs', 'Ollama', 'ollama app.exe');
+    if (fs.existsSync(appPath)) {
+        return appPath;
+    }
+    return null;
+}
+
+/**
  * Download and launch the official Ollama installer, waiting for user confirmation first.
  */
 async function downloadAndInstallOllama() {
@@ -235,11 +248,23 @@ async function ensureOllamaRunning(ollamaExe) {
     }
 
     log('Starting Ollama service...');
-    const ollamaProcess = spawn(ollamaExe, ['serve'], {
-        detached: true,
-        stdio: 'ignore',
-        windowsHide: true,
-    });
+    const trayApp = await findOllamaAppExe();
+    let ollamaProcess;
+    if (trayApp) {
+        log(`Launching Ollama GUI App: ${trayApp}`);
+        ollamaProcess = spawn(trayApp, [], {
+            detached: true,
+            stdio: 'ignore',
+            windowsHide: true,
+        });
+    } else {
+        log(`Launching Ollama CLI Serve: ${ollamaExe}`);
+        ollamaProcess = spawn(ollamaExe, ['serve'], {
+            detached: true,
+            stdio: 'ignore',
+            windowsHide: true,
+        });
+    }
     ollamaProcess.unref();
     didSpawnOllama = true;
     ollamaPid = ollamaProcess.pid; // Track PID for safe shutdown
