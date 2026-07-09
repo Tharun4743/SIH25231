@@ -120,22 +120,22 @@ async function main() {
             runCommand('npm install', DESKTOP_DIR);
         }
 
-        // Step 7: Package MSIX for Microsoft Store using electron-builder
-        console.log('\n[AURA BUILD] Packaging MSIX for Microsoft Store...');
+        // Step 7: Package Setup Installer using electron-builder
+        console.log('\n[AURA BUILD] Packaging EXE Setup Installer...');
         runCommand('npx electron-builder build --win --publish never', DESKTOP_DIR);
 
-        // Step 8: Rename APPX output to MSIX for Microsoft Store submission
+        // Step 8: Rename EXE output setup executable
         console.log('\n[AURA BUILD] Post-processing target deliverables...');
         const distDir = path.join(DESKTOP_DIR, 'dist');
-        const oldAppx = path.join(distDir, 'Aura 1.0.0.appx');
-        const newAppx = path.join(distDir, 'Aura-1.0.0.msix');
+        const oldSetup = path.join(distDir, 'Aura Setup 1.0.0.exe');
+        const newSetup = path.join(distDir, 'Aura-Setup-1.0.0.exe');
 
-        if (fs.existsSync(oldAppx)) {
-            if (fs.existsSync(newAppx)) fs.rmSync(newAppx);
-            fs.renameSync(oldAppx, newAppx);
-            console.log(`[AURA BUILD] Generated MSIX: ${newAppx}`);
-        } else if (fs.existsSync(newAppx)) {
-            console.log(`[AURA BUILD] MSIX already in place: ${newAppx}`);
+        if (fs.existsSync(oldSetup)) {
+            if (fs.existsSync(newSetup)) fs.rmSync(newSetup);
+            fs.renameSync(oldSetup, newSetup);
+            console.log(`[AURA BUILD] Generated EXE Installer: ${newSetup}`);
+        } else if (fs.existsSync(newSetup)) {
+            console.log(`[AURA BUILD] EXE Installer already in place: ${newSetup}`);
         }
 
         // Step 9: Clean temporary build directories and packaging residue in dist
@@ -145,12 +145,12 @@ async function main() {
         cleanDirectory(tempVenvDir);
         cleanDirectory(tempDataDir);
 
-        // Remove all other files/folders from dist except the final MSIX
+        // Remove all other files/folders from dist except the final Setup EXE
         if (fs.existsSync(distDir)) {
             const items = fs.readdirSync(distDir);
             for (const item of items) {
                 const itemPath = path.join(distDir, item);
-                if (item !== 'Aura-1.0.0.msix') {
+                if (item !== 'Aura-Setup-1.0.0.exe') {
                     console.log(`[AURA BUILD] Removing residue: ${item}`);
                     if (fs.lstatSync(itemPath).isDirectory()) {
                         fs.rmSync(itemPath, { recursive: true, force: true });

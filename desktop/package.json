@@ -39,19 +39,21 @@
     ],
     "win": {
       "target": [
-        { "target": "appx", "arch": ["x64"] }
+        { "target": "nsis", "arch": ["x64"] }
       ],
       "icon": "assets/icon.ico",
       "publisherName": "Tharunkumar K"
     },
-    "appx": {
-      "applicationId": "AuraAIUnifiedRetrievalAssistant",
-      "backgroundColor": "#0F172A",
-      "displayName": "Aura",
-      "identityName": "AuraAIUnifiedRetrievalAssistant",
-      "publisher": "CN=TharunkumarK",
-      "publisherDisplayName": "Tharunkumar K",
-      "languages": ["en-US"]
+    "nsis": {
+      "oneClick": true,
+      "perMachine": false,
+      "createDesktopShortcut": "always",
+      "createStartMenuShortcut": true,
+      "shortcutName": "Aura",
+      "uninstallDisplayName": "Aura",
+      "installerLanguages": ["en_US"],
+      "allowElevation": false,
+      "runAfterFinish": true
     }
   }
 }
