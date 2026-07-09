@@ -167,59 +167,6 @@
             font-family: monospace;
         }
 
-        /* ── Ollama install prompt ── */
-        .install-prompt {
-            display: none;
-            flex-direction: column;
-            align-items: center;
-            gap: 14px;
-            width: 100%;
-            margin-bottom: 20px;
-        }
-        .install-prompt.visible { display: flex; }
-        .install-card {
-            background: rgba(30, 41, 59, 0.8);
-            border: 1px solid rgba(59, 130, 246, 0.3);
-            border-radius: 12px;
-            padding: 20px;
-            text-align: center;
-            width: 100%;
-        }
-        .install-icon { font-size: 28px; margin-bottom: 8px; }
-        .install-title {
-            font-size: 15px;
-            font-weight: 700;
-            color: #F1F5F9;
-            margin-bottom: 6px;
-        }
-        .install-desc {
-            font-size: 12px;
-            color: #94A3B8;
-            line-height: 1.5;
-            margin-bottom: 16px;
-        }
-        .btn-row { display: flex; gap: 10px; justify-content: center; }
-        .btn {
-            padding: 9px 22px;
-            font-size: 12px;
-            font-weight: 700;
-            border-radius: 8px;
-            cursor: pointer;
-            border: none;
-            transition: all 0.2s;
-        }
-        .btn-primary {
-            background: linear-gradient(135deg, #3B82F6, #6366F1);
-            color: #FFF;
-        }
-        .btn-primary:hover { opacity: 0.9; transform: translateY(-1px); }
-        .btn-secondary {
-            background: rgba(148, 163, 184, 0.1);
-            color: #94A3B8;
-            border: 1px solid rgba(148, 163, 184, 0.15);
-        }
-        .btn-secondary:hover { background: rgba(148, 163, 184, 0.15); }
-
         /* ── Error state ── */
         .error-box {
             display: none;
@@ -292,23 +239,6 @@
             <div id="model-pct" class="model-pct">0%</div>
         </div>
 
-        <!-- Ollama install prompt (shown when Ollama not found) -->
-        <div id="install-prompt" class="install-prompt">
-            <div class="install-card">
-                <div class="install-icon">🦙</div>
-                <div class="install-title">Ollama Not Found</div>
-                <div class="install-desc">
-                    AURA requires <strong>Ollama</strong> to run local AI models on your device.<br>
-                    Clicking <em>Install Ollama</em> will open the official download page in your browser.<br>
-                    Complete the Ollama installation, then AURA will continue automatically.
-                </div>
-                <div class="btn-row">
-                    <button class="btn btn-primary" id="btn-install">Install Ollama</button>
-                    <button class="btn btn-secondary" id="btn-decline">Cancel</button>
-                </div>
-            </div>
-        </div>
-
         <!-- Error state -->
         <div id="error-box" class="error-box"></div>
         <button id="btn-exit" class="btn-exit">Exit</button>
@@ -328,7 +258,6 @@
         const modelName  = document.getElementById('model-name');
         const modelProgress = document.getElementById('model-progress');
         const modelPct   = document.getElementById('model-pct');
-        const installPrompt = document.getElementById('install-prompt');
         const errorBox   = document.getElementById('error-box');
         const btnExit    = document.getElementById('btn-exit');
 
@@ -336,7 +265,6 @@
         api.onStatusUpdate((message) => {
             statusEl.textContent = message;
             statusEl.style.color = '#94A3B8';
-            // Hide model row when not actively pulling
             if (!message.toLowerCase().includes('download') && !message.toLowerCase().includes('pulling')) {
                 statusSub.textContent = '\u00A0';
             }
@@ -351,7 +279,6 @@
             spinner.style.display = 'none';
             progressFill.parentElement.style.display = 'none';
             modelRow.classList.remove('visible');
-            installPrompt.classList.remove('visible');
 
             errorBox.textContent = errorText;
             errorBox.classList.add('visible');
@@ -361,7 +288,6 @@
         // Model download progress
         api.onPullProgress(({ model, percent, status }) => {
             modelRow.classList.add('visible');
-            installPrompt.classList.remove('visible');
 
             modelName.textContent = model;
             modelProgress.style.width = percent + '%';
@@ -373,30 +299,6 @@
             // Switch progress bar to determinate mode
             progressFill.classList.add('determinate');
             progressFill.style.width = percent + '%';
-        });
-
-        // Ollama install confirmation prompt
-        api.onInstallOllamaPrompt(() => {
-            spinner.style.display = 'none';
-            progressFill.parentElement.style.display = 'none';
-            statusEl.textContent = 'Ollama Required';
-            statusSub.textContent = '\u00A0';
-            installPrompt.classList.add('visible');
-        });
-
-        // Install Ollama button
-        document.getElementById('btn-install').addEventListener('click', () => {
-            installPrompt.classList.remove('visible');
-            spinner.style.display = 'block';
-            progressFill.parentElement.style.display = 'block';
-            statusEl.textContent = 'Opening Ollama installer...';
-            statusSub.textContent = 'Complete installation in your browser, then AURA will continue.';
-            api.confirmInstallOllama();
-        });
-
-        // Decline button
-        document.getElementById('btn-decline').addEventListener('click', () => {
-            api.declineInstallOllama();
         });
 
         // Exit button

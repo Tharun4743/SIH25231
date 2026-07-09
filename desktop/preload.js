@@ -42,28 +42,6 @@ contextBridge.exposeInMainWorld('auraApi', {
     },
 
     /**
-     * Register a callback that fires when the user must confirm Ollama installation.
-     * @param {(callback: () => void) => void} onConfirm
-     */
-    onInstallOllamaPrompt: (callback) => {
-        ipcRenderer.on('install-ollama-prompt', (_event) => callback());
-    },
-
-    /**
-     * User confirmed they want to install Ollama — send reply back to main process.
-     */
-    confirmInstallOllama: () => {
-        ipcRenderer.send('confirm-install-ollama');
-    },
-
-    /**
-     * User declined Ollama installation — exit the application.
-     */
-    declineInstallOllama: () => {
-        ipcRenderer.send('exit-app');
-    },
-
-    /**
      * Tell the main process to exit the application cleanly.
      */
     exitApp: () => {

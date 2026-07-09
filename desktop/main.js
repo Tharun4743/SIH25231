@@ -24,7 +24,7 @@
 
 const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
 const path = require('path');
-const { spawn, execFile } = require('child_process');
+const { spawn } = require('child_process');
 const http = require('http');
 const fs = require('fs');
 
@@ -139,8 +139,8 @@ function markSetupComplete() {
 // ─── Ollama detection (CF-01: async, non-blocking) ───────────────────────────
 
 /**
- * Try to resolve the ollama executable path using pure Javascript filesystem checks.
- * This completely avoids running child processes (like 'where'), preventing flashing/blinking command prompt windows.
+ * Resolve the ollama CLI executable path using pure filesystem checks.
+ * Only matches ollama.exe (CLI) — never the GUI tray app.
  */
 async function findOllamaExe() {
     // 1. Manually parse and check system PATH environment variable
@@ -157,12 +157,11 @@ async function findOllamaExe() {
         } catch (_) {}
     }
 
-    // 2. Check default user and system installation paths
+    // 2. Check default user and system installation paths (CLI exe only — not the tray app)
     const localAppData = process.env.LOCALAPPDATA || '';
     const programFiles = process.env.ProgramFiles || 'C:\\Program Files';
     const candidates = [
         path.join(localAppData, 'Programs', 'Ollama', 'ollama.exe'),
-        path.join(localAppData, 'Programs', 'Ollama', 'ollama app.exe'),
         path.join(programFiles, 'Ollama', 'ollama.exe'),
     ];
     for (const p of candidates) {
@@ -178,61 +177,40 @@ async function findOllamaExe() {
 }
 
 /**
- * Try to resolve the Ollama GUI Tray App executable path.
- * This is used to start the service cleanly without terminal flashes.
+ * Show a native dialog telling the user Ollama is missing,
+ * with a direct download button. Quits the app after the user acts.
+ * No renderer-side IPC, no polling — clean and instant.
  */
-async function findOllamaAppExe() {
-    const localAppData = process.env.LOCALAPPDATA || '';
-    const appPath = path.join(localAppData, 'Programs', 'Ollama', 'ollama app.exe');
-    if (fs.existsSync(appPath)) {
-        return appPath;
-    }
-    return null;
-}
+async function showOllamaNotInstalledDialog() {
+    const DOWNLOAD_URL = 'https://ollama.com/download/windows';
 
-/**
- * Download and launch the official Ollama installer, waiting for user confirmation first.
- */
-async function downloadAndInstallOllama() {
-    return new Promise((resolve, reject) => {
-        // Prompt the renderer to show the install confirmation dialog
-        if (loadingWindow && !loadingWindow.isDestroyed()) {
-            loadingWindow.webContents.send('install-ollama-prompt');
-        }
-
-        // Wait for user response via IPC
-        ipcMain.once('confirm-install-ollama', async () => {
-            try {
-                log('Opening Ollama official download page...');
-                await shell.openExternal('https://ollama.com/download/windows');
-                log('Ollama installer page opened in browser. Waiting for user to install Ollama...');
-
-                // W-02 FIX: iterative while loop instead of recursive async call
-                const maxWaitMs = 5 * 60 * 1000;
-                const pollIntervalMs = 5000;
-                const startTime = Date.now();
-
-                while (Date.now() - startTime < maxWaitMs) {
-                    const exe = await findOllamaExe();
-                    if (exe) {
-                        log('Ollama installation detected!');
-                        resolve(exe);
-                        return;
-                    }
-                    log('Waiting for Ollama installation to complete...');
-                    await sleep(pollIntervalMs);
-                }
-
-                reject(new Error('Timed out waiting for Ollama installation. Please install Ollama and relaunch AURA.'));
-            } catch (e) {
-                reject(e);
-            }
-        });
+    const { response } = await dialog.showMessageBox({
+        type: 'warning',
+        title: 'Ollama Not Found — AURA',
+        message: 'Ollama is not installed on this device.',
+        detail:
+            'AURA requires Ollama to run local AI models.\n\n' +
+            'Click "Download Ollama" to open the official installer page in your browser, ' +
+            'then relaunch AURA after installation completes.',
+        buttons: ['Download Ollama', 'Exit'],
+        defaultId: 0,
+        cancelId: 1,
+        icon: path.join(__dirname, 'assets', 'icon.ico'),
     });
+
+    if (response === 0) {
+        await shell.openExternal(DOWNLOAD_URL);
+    }
+    app.quit();
 }
 
 // ─── Ollama service management ───────────────────────────────────────────────
 
+/**
+ * Start the Ollama CLI server (`ollama serve`) if it isn't already running.
+ * We do NOT use detached:true so AURA owns the process and can stop it cleanly on exit.
+ * The GUI tray app ("ollama app.exe") is never launched.
+ */
 async function ensureOllamaRunning(ollamaExe) {
     const result = await checkUrl('http://localhost:11434/api/tags', 2000);
     if (result.ok) {
@@ -240,27 +218,26 @@ async function ensureOllamaRunning(ollamaExe) {
         return;
     }
 
-    log(`Launching Ollama CLI Serve: ${ollamaExe}`);
+    log('Starting Ollama server...');
     const ollamaProcess = spawn(ollamaExe, ['serve'], {
-        detached: true,
         stdio: 'ignore',
         windowsHide: true,
+        // Note: NOT detached — AURA owns this process and will stop it on exit.
     });
-    ollamaProcess.unref();
     didSpawnOllama = true;
-    ollamaPid = ollamaProcess.pid; // Track PID for safe shutdown
+    ollamaPid = ollamaProcess.pid; // Track PID for clean shutdown
 
-    // Wait up to 30 seconds for the service to come up
+    // Wait up to 30 seconds for the service to become ready
     for (let i = 0; i < 15; i++) {
         await sleep(2000);
         const check = await checkUrl('http://localhost:11434/api/tags', 2000);
         if (check.ok) {
-            log('Ollama service is ready.');
+            log('Ollama server is ready.');
             return;
         }
-        log(`Waiting for Ollama service... (${(i + 1) * 2}s)`);
+        log(`Waiting for Ollama server... (${(i + 1) * 2}s)`);
     }
-    throw new Error('Ollama service did not start within 30 seconds. Please start Ollama manually and relaunch AURA.');
+    throw new Error('Ollama server did not start within 30 seconds. Please reinstall Ollama and relaunch AURA.');
 }
 
 // ─── Model management ────────────────────────────────────────────────────────
@@ -483,7 +460,9 @@ function stopBackend() {
 
     if (backendProcess) {
         const pid = backendProcess.pid;
+        // Kill via the ChildProcess handle first (no window spawned)
         try { backendProcess.kill('SIGTERM'); } catch (_) {}
+        // Fallback: force-kill the process tree by PID only (windowsHide prevents any flash)
         if (pid) {
             try {
                 spawn('taskkill', ['/F', '/T', '/PID', String(pid)], { windowsHide: true, stdio: 'ignore' });
@@ -492,13 +471,13 @@ function stopBackend() {
         backendProcess = null;
     }
 
-    // Stop Ollama service on exit if auto-start is enabled
-    const autoStart = shouldAutoStartOllama();
-    if (autoStart) {
-        log('Stopping Ollama service...');
+    // Stop the Ollama server if AURA started it.
+    // Uses process.kill(pid) — a pure Node.js syscall, no child process, no window flash.
+    if (didSpawnOllama && ollamaPid) {
+        try { process.kill(ollamaPid, 'SIGTERM'); } catch (_) {}
+        // Force-kill by PID (not image name) — no console window
         try {
-            spawn('taskkill', ['/F', '/IM', 'ollama.exe'], { windowsHide: true, stdio: 'ignore' });
-            spawn('taskkill', ['/F', '/IM', 'ollama app.exe'], { windowsHide: true, stdio: 'ignore' });
+            spawn('taskkill', ['/F', '/T', '/PID', String(ollamaPid)], { windowsHide: true, stdio: 'ignore' });
         } catch (_) {}
     }
 }
@@ -625,17 +604,18 @@ async function startStartupSequence() {
         const autoStart = shouldAutoStartOllama();
 
         if (autoStart) {
-            // ── Step 1: Detect Ollama (CF-01: async, non-blocking) ────────────
+            // ── Step 1: Detect Ollama (CLI exe only, no tray) ──────────────────
             log(firstRun ? 'First-time setup — checking prerequisites...' : 'Verifying Ollama...');
-            let ollamaExe = await findOllamaExe();
+            const ollamaExe = await findOllamaExe();
 
             if (!ollamaExe) {
-                // Prompt user to install Ollama
-                ollamaExe = await downloadAndInstallOllama();
+                // Show native dialog with direct download link and exit — no renderer involvement
+                await showOllamaNotInstalledDialog();
+                return; // app.quit() was called inside the dialog handler
             }
 
-            // ── Step 2: Start Ollama service ───────────────────────────────────
-            log('Starting Ollama service...');
+            // ── Step 2: Start Ollama server (CLI only — no tray app) ───────────
+            log('Starting Ollama server...');
             await ensureOllamaRunning(ollamaExe);
 
             // ── Step 3: Pull required models ───────────────────────────────────

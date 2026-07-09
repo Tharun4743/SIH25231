@@ -31,40 +31,27 @@
       "assets/**/*"
     ],
     "extraResources": [
-      { "from": "jre",          "to": "jre",          "filter": ["**/*"] },
-      { "from": "backend",      "to": "backend",       "filter": ["**/*"] },
-      { "from": "frontend/dist","to": "frontend/dist", "filter": ["**/*"] },
-      { "from": ".venv",        "to": ".venv",         "filter": ["**/*"] },
-      { "from": "data",         "to": "data",          "filter": ["**/*"] }
+      { "from": "jre",           "to": "jre",          "filter": ["**/*"] },
+      { "from": "backend",       "to": "backend",      "filter": ["**/*"] },
+      { "from": "frontend/dist", "to": "frontend/dist","filter": ["**/*"] },
+      { "from": ".venv",         "to": ".venv",        "filter": ["**/*"] },
+      { "from": "data",          "to": "data",         "filter": ["**/*"] }
     ],
     "win": {
       "target": [
-        { "target": "nsis", "arch": ["x64"] },
         { "target": "appx", "arch": ["x64"] }
       ],
       "icon": "assets/icon.ico",
       "publisherName": "Tharunkumar K"
     },
-    "nsis": {
-      "oneClick": true,
-      "perMachine": false,
-      "createDesktopShortcut": "always",
-      "createStartMenuShortcut": true,
-      "shortcutName": "Aura",
-      "uninstallDisplayName": "Aura",
-      "installerLanguages": ["en_US"],
-      "allowElevation": false,
-      "runAfterFinish": true
-    },
     "appx": {
-  "applicationId": "AuraAIUnifiedRetrievalAssistant",
-  "backgroundColor": "#0F172A",
-  "displayName": "Aura",
-  "identityName": "AuraAIUnifiedRetrievalAssistant",
-  "publisher": "CN=TharunkumarK",
-  "publisherDisplayName": "Tharunkumar K",
-  "languages": ["en-US"]
-},
-    "artifactBuildCompleted": null
+      "applicationId": "AuraAIUnifiedRetrievalAssistant",
+      "backgroundColor": "#0F172A",
+      "displayName": "Aura",
+      "identityName": "AuraAIUnifiedRetrievalAssistant",
+      "publisher": "CN=TharunkumarK",
+      "publisherDisplayName": "Tharunkumar K",
+      "languages": ["en-US"]
+    }
   }
 }

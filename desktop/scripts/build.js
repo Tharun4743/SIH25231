@@ -82,36 +82,37 @@ async function main() {
         }
 
         // OPTIMIZATION B: Parallel staging copy using PowerShell jobs
+        // -NonInteractive -WindowStyle Hidden prevents any console window from flashing
         console.log('[AURA BUILD] Copying AI models, sidecars, and React build in parallel using PowerShell jobs...');
         const copyJobs = [
             `Start-Job { Copy-Item -Path '${path.join(backendDir, 'sidecars')}' -Destination '${tempBackendDir}' -Recurse -Force }`,
             `Start-Job { Copy-Item -Path '${path.join(backendDir, 'models')}' -Destination '${tempBackendDir}' -Recurse -Force }`,
             `Start-Job { Copy-Item -Path '${path.join(frontendDir, 'dist')}' -Destination '${tempFrontendDir}' -Recurse -Force }`
         ].join('; ');
-        execSync(`powershell -Command "${copyJobs}; Get-Job | Wait-Job | Remove-Job"`);
+        execSync(`powershell -NonInteractive -WindowStyle Hidden -Command "${copyJobs}; Get-Job | Wait-Job | Remove-Job"`);
 
         // Copy Python virtual environment
         console.log('[AURA BUILD] Copying Python virtual environment (this may take a minute)...');
-        execSync(`powershell -Command "Copy-Item -Path '${path.join(ROOT_DIR, '.venv')}' -Destination '${DESKTOP_DIR}' -Recurse -Force"`);
+        execSync(`powershell -NonInteractive -WindowStyle Hidden -Command "Copy-Item -Path '${path.join(ROOT_DIR, '.venv')}' -Destination '${DESKTOP_DIR}' -Recurse -Force"`);
 
         // Copy database folder
         console.log('[AURA BUILD] Copying SQLite seed database...');
-        execSync(`powershell -Command "Copy-Item -Path '${path.join(ROOT_DIR, 'data')}' -Destination '${DESKTOP_DIR}' -Recurse -Force"`);
+        execSync(`powershell -NonInteractive -WindowStyle Hidden -Command "Copy-Item -Path '${path.join(ROOT_DIR, 'data')}' -Destination '${DESKTOP_DIR}' -Recurse -Force"`);
 
         // OPTIMIZATION A: Strip redundant cache files, test files, and docs inside staged .venv
         console.log('[AURA BUILD] Cleaning redundant files and stripping virtual environment to optimize footprint and extraction speed...');
         // Strip __pycache__ folders
-        execSync(`powershell -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter '__pycache__' -Recurse -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force"`);
+        execSync(`powershell -NonInteractive -WindowStyle Hidden -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter '__pycache__' -Recurse -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force"`);
         // Strip bytecode *.pyc files
-        execSync(`powershell -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter '*.pyc' -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force"`);
+        execSync(`powershell -NonInteractive -WindowStyle Hidden -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter '*.pyc' -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force"`);
         // Strip test folders
-        execSync(`powershell -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter 'test*' -Recurse -Directory -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force"`);
+        execSync(`powershell -NonInteractive -WindowStyle Hidden -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter 'test*' -Recurse -Directory -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force"`);
         // Strip .dist-info folders (pip metadata, not needed at runtime)
-        execSync(`powershell -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter '*.dist-info' -Recurse -Directory -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force"`);
+        execSync(`powershell -NonInteractive -WindowStyle Hidden -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter '*.dist-info' -Recurse -Directory -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force"`);
         // Strip type stub *.pyi files
-        execSync(`powershell -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter '*.pyi' -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force"`);
+        execSync(`powershell -NonInteractive -WindowStyle Hidden -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter '*.pyi' -Recurse -ErrorAction SilentlyContinue | Remove-Item -Force"`);
         // Strip duplicate C++ .h header files from torch/include (saves ~150MB)
-        execSync(`powershell -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter 'include' -Recurse -Directory -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force"`);
+        execSync(`powershell -NonInteractive -WindowStyle Hidden -Command "Get-ChildItem -Path '${tempVenvDir}' -Filter 'include' -Recurse -Directory -ErrorAction SilentlyContinue | Remove-Item -Recurse -Force"`);
 
         // Step 6: Install desktop wrapper devDependencies if node_modules missing
         if (!fs.existsSync(path.join(DESKTOP_DIR, 'node_modules'))) {
@@ -119,27 +120,22 @@ async function main() {
             runCommand('npm install', DESKTOP_DIR);
         }
 
-        // Step 7: Package native desktop applications using electron-builder
-        console.log('\n[AURA BUILD] Packaging native desktop applications (.exe)...');
+        // Step 7: Package MSIX for Microsoft Store using electron-builder
+        console.log('\n[AURA BUILD] Packaging MSIX for Microsoft Store...');
         runCommand('npx electron-builder build --win --publish never', DESKTOP_DIR);
 
-        // Step 8: Rename output executables to match target specifications
+        // Step 8: Rename APPX output to MSIX for Microsoft Store submission
         console.log('\n[AURA BUILD] Post-processing target deliverables...');
         const distDir = path.join(DESKTOP_DIR, 'dist');
-        const oldSetup = path.join(distDir, 'Aura Setup 1.0.0.exe');
-        const newSetup = path.join(distDir, 'Aura-Setup-1.0.0.exe');
         const oldAppx = path.join(distDir, 'Aura 1.0.0.appx');
         const newAppx = path.join(distDir, 'Aura-1.0.0.msix');
 
-        if (fs.existsSync(oldSetup)) {
-            if (fs.existsSync(newSetup)) fs.rmSync(newSetup);
-            fs.renameSync(oldSetup, newSetup);
-            console.log(`[AURA BUILD] Renamed: ${newSetup}`);
-        }
         if (fs.existsSync(oldAppx)) {
             if (fs.existsSync(newAppx)) fs.rmSync(newAppx);
             fs.renameSync(oldAppx, newAppx);
             console.log(`[AURA BUILD] Generated MSIX: ${newAppx}`);
+        } else if (fs.existsSync(newAppx)) {
+            console.log(`[AURA BUILD] MSIX already in place: ${newAppx}`);
         }
 
         // Step 9: Clean temporary build directories and packaging residue in dist
@@ -149,12 +145,12 @@ async function main() {
         cleanDirectory(tempVenvDir);
         cleanDirectory(tempDataDir);
 
-        // Remove all other files/folders from dist except the main MSIX and Setup EXE
+        // Remove all other files/folders from dist except the final MSIX
         if (fs.existsSync(distDir)) {
             const items = fs.readdirSync(distDir);
             for (const item of items) {
                 const itemPath = path.join(distDir, item);
-                if (item !== 'Aura-Setup-1.0.0.exe' && item !== 'Aura-1.0.0.msix') {
+                if (item !== 'Aura-1.0.0.msix') {
                     console.log(`[AURA BUILD] Removing residue: ${item}`);
                     if (fs.lstatSync(itemPath).isDirectory()) {
                         fs.rmSync(itemPath, { recursive: true, force: true });
