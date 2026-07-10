@@ -1,0 +1,16 @@
+{
+  "name": "aura-web",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "dev": "concurrently -n BACKEND,FRONTEND -c blue,green --kill-others \"npm:dev:backend\" \"npm:dev:frontend\"",
+    "dev:backend": "cd ../desktop/src/backend && mvn spring-boot:run",
+    "dev:frontend": "cd ../desktop/src/frontend && npx vite --config ../../../web/frontend/vite.config.web.ts"
+  },
+  "dependencies": {
+    "@tailwindcss/vite": "^4.1.14",
+    "@vitejs/plugin-react": "^5.0.4",
+    "concurrently": "^8.2.2",
+    "vite": "^6.2.3"
+  }
+}

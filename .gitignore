@@ -43,3 +43,13 @@ Thumbs.db
 # Developer Tools
 tools/
 desktop/src/tools/
+
+# Web Version Local Files & Junctions
+/frontend
+/backend
+/models
+/database/
+/uploads/
+/logs/
+/web/pids.json
+
