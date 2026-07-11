@@ -207,13 +207,24 @@ mvn clean package -DskipTests
 
 ## 🚀 Running the Application
 
-### Running in Development Mode
+### Running the Desktop App
 To run the full desktop application in development mode with hot reloading:
 ```bash
 cd desktop
 npm start
 ```
 This launches the Electron container, starts the custom splash screen, boots the Java backend (directing logs to the UserData folder), starts the Ollama server, and mounts the React web interface.
+
+### Running the Web Version (Browser Only)
+To run the application inside a standard web browser (bypassing the Electron wrapper):
+- **Windows (Quick Start):** Run `run-web.bat` from the root directory.
+- **Manual (Any platform):**
+  ```bash
+  cd web
+  npm install
+  npm run dev
+  ```
+Then open `http://localhost:5173` in your browser.
 
 ---
 

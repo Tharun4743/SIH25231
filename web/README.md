@@ -23,6 +23,18 @@ To run the web version of AURA, ensure the following are installed and running o
 
 ## How to Run
 
+### Windows (Quick Start)
+Simply run the batch file from the root directory or inside the `web` folder:
+- From the project root: Double-click or run `run-web.bat`
+- From the `web` directory: Double-click or run `run.bat`
+
+The batch scripts will automatically:
+1. Verify Node.js and Maven are installed.
+2. Check and install missing dependencies (`node_modules`).
+3. Verify if Ollama is running.
+4. Launch the concurrently-run backend and frontend.
+
+### Manual / Other Platforms
 1. Open a terminal and navigate to this `web/` directory.
 2. Install the necessary runner dependencies:
    ```bash
@@ -33,6 +45,7 @@ To run the web version of AURA, ensure the following are installed and running o
    npm run dev
    ```
 4. Open your browser and navigate to `http://localhost:5173`.
+
 
 ## Troubleshooting
 
