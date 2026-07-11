@@ -68,9 +68,105 @@ partopsep=0pt
 \setlength{\tabcolsep}{6pt}
 
 \renewcommand{\bibname}{REFERENCES}
-\renewcommand{\contentsname}{CONTENTS}
+\renewcommand{\contentsname}{TABLE OF CONTENTS}
 \renewcommand{\listfigurename}{LIST OF FIGURES}
 \renewcommand{\listtablename}{LIST OF TABLES}
+
+\makeatletter
+\renewcommand\tableofcontents{%
+    \chapter*{\contentsname}%
+    \vspace{0.6cm}
+    \noindent\textbf{CHAPTER NO.} \hfill \textbf{TITLE} \hfill \textbf{PAGE NO.} \\[0.3cm]
+    \@starttoc{toc}%
+}
+\renewcommand\listoffigures{%
+    \chapter*{\listfigurename}%
+    \vspace{0.6cm}
+    \noindent\textbf{FIGURE NO.} \hfill \textbf{TITLE} \hfill \textbf{PAGE NO.} \\[0.3cm]
+    \@starttoc{lof}%
+}
+\renewcommand\listoftables{%
+    \chapter*{\listtablename}%
+    \vspace{0.6cm}
+    \noindent\textbf{TABLE NO.} \hfill \textbf{TITLE} \hfill \textbf{PAGE NO.} \\[0.3cm]
+    \@starttoc{lot}%
+}
+\renewcommand*\l@chapter[2]{%
+  \ifnum \c@tocdepth >\m@ne
+    \addpenalty{-\@highpenalty}%
+    \vskip 0.8em \@plus\p@
+    \setlength\@tempdima{1.5em}%
+    \begingroup
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode
+      \advance\leftskip\@tempdima
+      \hskip -\leftskip
+      {\bfseries #1}\nobreak\hfill\nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+      \penalty\@highpenalty
+    \endgroup
+  \fi}
+\renewcommand*\l@section[2]{%
+  \ifnum \c@tocdepth >\z@
+    \addpenalty{-\@highpenalty}%
+    \vskip 0.4em \@plus\p@
+    \begingroup
+      \setlength\@tempdima{2.3em}%
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode
+      \leftskip 1.5em
+      \advance\leftskip\@tempdima
+      \hskip -\@tempdima
+      #1\nobreak\hfill\nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+      \penalty\@highpenalty
+    \endgroup
+  \fi}
+\renewcommand*\l@subsection[2]{%
+  \ifnum \c@tocdepth >1
+    \addpenalty{-\@highpenalty}%
+    \vskip 0.3em \@plus\p@
+    \begingroup
+      \setlength\@tempdima{3.2em}%
+      \parindent \z@ \rightskip \@pnumwidth
+      \parfillskip -\@pnumwidth
+      \leavevmode
+      \leftskip 3.8em
+      \advance\leftskip\@tempdima
+      \hskip -\@tempdima
+      #1\nobreak\hfill\nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+      \penalty\@highpenalty
+    \endgroup
+  \fi}
+\renewcommand*\l@figure[2]{%
+  \addpenalty{-\@highpenalty}%
+  \vskip 0.5em \@plus\p@
+  \begingroup
+    \setlength\@tempdima{3.2em}%
+    \parindent \z@ \rightskip \@pnumwidth
+    \parfillskip -\@pnumwidth
+    \leavevmode
+    \leftskip 1.5em
+    \advance\leftskip\@tempdima
+    \hskip -\@tempdima
+    #1\nobreak\hfill\nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+    \penalty\@highpenalty
+  \endgroup}
+\renewcommand*\l@table[2]{%
+  \addpenalty{-\@highpenalty}%
+  \vskip 0.5em \@plus\p@
+  \begingroup
+    \setlength\@tempdima{3.2em}%
+    \parindent \z@ \rightskip \@pnumwidth
+    \parfillskip -\@pnumwidth
+    \leavevmode
+    \leftskip 1.5em
+    \advance\leftskip\@tempdima
+    \hskip -\@tempdima
+    #1\nobreak\hfill\nobreak\hb@xt@\@pnumwidth{\hss #2}\par
+    \penalty\@highpenalty
+  \endgroup}
+\makeatother
 
 \titleformat{\chapter}[hang]{\normalfont\bfseries\fontsize{18}{22}\selectfont}{CHAPTER \thechapter}{1em}{}
 \titlespacing*{\chapter}{0pt}{12pt}{10pt}
@@ -100,66 +196,206 @@ partopsep=0pt
 
 \begin{document}
 
-\begin{titlepage}
-    \begin{center}
-        \vspace*{0.2cm}
-        
-        \begin{minipage}[c]{0.18\textwidth}
-            \centering
-            \includegraphics[width=2.2cm]{logo.png}
-        \end{minipage}%
-        \begin{minipage}[c]{0.64\textwidth}
-            \centering
-            \large\textbf{AURA - AI UNIFIED RETRIEVAL\\ASSISTANT}
-        \end{minipage}%
-        \begin{minipage}[c]{0.18\textwidth}
-            \centering
-            \includegraphics[width=2.2cm]{naac.png}
-        \end{minipage}
-        
-        \vspace*{2.2cm}
-        
-        \large\textbf{A PROJECT REPORT}
-        
-        \vspace*{0.8cm}
-        
-        \large\textit{Submitted by}
-        
-        \vspace*{1.5cm}
-        
-        \large\textbf{THARUNKUMAR K \qquad (922524205171)}
-        
-        \vspace*{2.8cm}
-        
-        \large\textit{Pursuing the degree of}
-        
-        \vspace*{0.8cm}
-        
-        \large\textbf{BACHELOR OF TECHNOLOGY} \\
-        \vspace*{0.2cm}
-        \normalsize in \\
-        \vspace*{0.2cm}
-        \large\textbf{INFORMATION TECHNOLOGY}
-        
-        \vspace*{2.5cm}
-        
-        \large\textbf{V.S.B. ENGINEERING COLLEGE, KARUR-639 111} \\
-        \vspace*{0.1cm}
-        \large\textit{(An Autonomous Institution, Affiliated to Anna University)}
-        
-        \vspace*{1.5cm}
-        
-        \large\textbf{JUNE 2026}
-    \end{center}
-\end{titlepage}
-\pagenumbering{roman}
-\setcounter{page}{2}
+\pagenumbering{Roman}
+\thispagestyle{empty}
+\begin{center}
+    \vspace*{0.2cm}
+    
+    \begin{minipage}[c]{0.18\textwidth}
+        \centering
+        \includegraphics[width=2.2cm]{logo.png}
+    \end{minipage}%
+    \begin{minipage}[c]{0.64\textwidth}
+        \centering
+        \large\textbf{AURA - AI UNIFIED RETRIEVAL\\ASSISTANT}
+    \end{minipage}%
+    \begin{minipage}[c]{0.18\textwidth}
+        \centering
+        \includegraphics[width=2.2cm]{naac.png}
+    \end{minipage}
+    
+    \vspace*{2.2cm}
+    
+    \large\textbf{A PROJECT REPORT}
+    
+    \vspace*{0.8cm}
+    
+    \large\textit{Submitted by}
+    
+    \vspace*{1.5cm}
+    
+    \large\textbf{THARUNKUMAR K \qquad (922524205171)}
+    
+    \vspace*{2.8cm}
+    
+    \large\textit{Pursuing the degree of}
+    
+    \vspace*{0.8cm}
+    
+    \large\textbf{BACHELOR OF TECHNOLOGY} \\
+    \vspace*{0.2cm}
+    \normalsize in \\
+    \vspace*{0.2cm}
+    \large\textbf{INFORMATION TECHNOLOGY}
+    
+    \vspace*{2.5cm}
+    
+    \large\textbf{V.S.B. ENGINEERING COLLEGE, KARUR-639 111} \\
+    \vspace*{0.1cm}
+    \large\textit{(An Autonomous Institution)}
+    
+    \vspace*{1.5cm}
+    
+    \large\textbf{JUNE 2026}
+\end{center}
+\clearpage
+
+\vspace*{1cm}
+
+\begin{center}
+{\bfseries\Large BONAFIDE CERTIFICATE}
+\end{center}
+
+\vspace{1cm}
+
+\noindent
+Certified that this project report titled
+\textbf{``AURA - AI UNIFIED RETRIEVAL ASSISTANT''}
+is the bonafide work of
+\textbf{THARUNKUMAR K (922524205171)}
+who carried out the project under my supervision.
+
+\vspace{4cm}
+
+\noindent
+\begin{minipage}{0.45\textwidth}
+\textbf{SIGNATURE} \\[1.5cm]
+Dr. P. AROCKIA MARY M.E., Ph.D., \\
+\textbf{HEAD OF THE DEPARTMENT} \\
+Department of Information Technology, \\
+V.S.B. Engineering College \\
+Karur -639111
+\end{minipage}
+\hfill
+\begin{minipage}{0.45\textwidth}
+\textbf{SIGNATURE} \\[1.5cm]
+Mr. D. VENGAIMARBHAN M.E., \\
+\textbf{SUPERVISOR} \\
+Assistant Professor \\
+Department of Information Technology, \\
+V.S.B. Engineering College \\
+Karur -639111
+\end{minipage}
+
+\vspace{2cm}
+
+\noindent
+Submitted for Project Viva-Voce held on
+\hrulefill
+
+\vspace{2cm}
+
+\noindent
+\begin{minipage}{0.45\textwidth}
+\centering
+\textbf{INTERNAL EXAMINER}
+\end{minipage}
+\hfill
+\begin{minipage}{0.45\textwidth}
+\centering
+\textbf{EXTERNAL EXAMINER}
+\end{minipage}
+
+\clearpage
+
+% ==========================================
+% DECLARATION
+% ==========================================
+
+\begin{center}
+{\bfseries\Large DECLARATION}
+\end{center}
+
+\vspace{1cm}
+
+\noindent
+I declare that the project report on
+\textbf{``AURA - AI UNIFIED RETRIEVAL ASSISTANT''}
+is the result of original work done by me and best of my knowledge,
+similar work has not been submitted to
+\textbf{``ANNA UNIVERSITY CHENNAI''}
+for the requirement of Degree,
+Bachelor of Technology.
+
+\vspace{0.5cm}
+\noindent
+This project report is submitted to the partial fulfillment of the requirement
+of the award of Degree of Bachelor of Technology.
+
+\vspace{3cm}
+
+\begin{flushright}
+\textbf{SIGNATURE}
+
+\vspace{1.5cm}
+
+\rule{4cm}{0.4pt}
+
+THARUNKUMAR K
+\end{flushright}
+
+\vspace{2cm}
+
+\noindent
+Place: Karur
+
+\noindent
+Date:
+
+\clearpage
+
+% ==========================================
+% ACKNOWLEDGEMENT
+% ==========================================
+
+\begin{center}
+{\bfseries\Large ACKNOWLEDGEMENT}
+\end{center}
+
+\vspace{0.8cm}
+
+\noindent
+First and foremost, I express my thanks to my parents for providing me with a
+very nice environment for doing this project. I wish to express my sincere thanks to our Founder and Chairman \textbf{Shri. V.S.BALSAMY B.Sc., B.L.,} for his Endeavor in educating me in this premier institution.
+
+\vspace{0.5cm}
+\noindent
+I wish to express my appreciation and gratefulness to our Principal,
+\textbf{Dr.C.VENNILA M.E., Ph.D.,} and Vice Principal \textbf{Dr.T.S.KIRUBASANKAR M.E., Ph.D} for their encouragement and sincere guidance.
+
+\vspace{0.5cm}
+\noindent
+I am grateful to my head of the department \textbf{Dr.P.AROCKIA MARY M.E., Ph.D.,} and my project coordinator \textbf{Mr.D.VENGAIMARBHAN M.E.,} Assistant Professor, Department of Information Technology for their valuable support.
+
+\vspace{0.5cm}
+\noindent
+I express my thanks to the supervisor of my project \textbf{Mr.D.VENGAIMARBHAN M.E.}, Assistant Professor, Department of Information Technology, for guidance throughout the course of my project.
+
+\vspace{0.5cm}
+\noindent
+My sincere thanks to all the teaching staff of V.S.B Engineering College and our friends for their help in the successful completion of this project work.
+
+\vspace{0.5cm}
+\noindent
+Finally, I bow before God, the almighty who always had a better plan for us. We give our praise and glory to Almighty God for successful completion of this project.
+
+\clearpage
 
 % ==========================================
 % ABSTRACT
 % ==========================================
 \chapter*{ABSTRACT}
-\addcontentsline{toc}{chapter}{ABSTRACT}
+\addcontentsline{toc}{section}{ABSTRACT}
 Modern organizations operate in increasingly complex digital environments where the retrieval of confidential information must be executed with data sovereignty constraints. Conventional Retrieval-Augmented Generation (RAG) solutions typically rely on cloud-hosted services and external API endpoints. This reliance makes them unsuitable for high-security, air-gapped, and isolated network infrastructures where the exposure of proprietary data to external perimeters represents a significant compliance hazard and security risk.
 
 To address these limitations, this project presents \textbf{AURA} (AI Unified Retrieval Assistant), an offline multimodal Retrieval-Augmented Generation framework developed to meet the requirements of the Smart India Hackathon 2025 Problem Statement PS-25231. The system integrates a local Large Language Model (LLaMA 3 with 8B parameters), a Nomic Embed Text embedding model, an embedded SQLite-based vector storage layer, a React and TypeScript frontend, an Electron desktop wrapper, and a high-performance Java Spring Boot backend service. By packaging and running all core processes entirely within the local host space, AURA enables secure semantic document retrieval without any active internet connectivity or external network handshakes.
@@ -175,36 +411,45 @@ The retrieved contexts and user queries are formatted into prompt templates and 
 % ==========================================
 \tableofcontents
 
-\newpage
-\addcontentsline{toc}{chapter}{LIST OF FIGURES}
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{LIST OF FIGURES}
 \listoffigures
-\vspace{18pt}
-\addcontentsline{toc}{chapter}{LIST OF TABLES}
+
+\clearpage
+\phantomsection
+\addcontentsline{toc}{section}{LIST OF TABLES}
 \listoftables
 
-\newpage
+
+\clearpage
 \chapter*{LIST OF ABBREVIATIONS}
-\addcontentsline{toc}{chapter}{LIST OF ABBREVIATIONS}
+\addcontentsline{toc}{section}{LIST OF ABBREVIATIONS}
 \noindent
-\begin{longtable}[l]{>{\bfseries}p{2.8cm} p{11.2cm}}
-AURA & AI Unified Retrieval Assistant \\
-RAG & Retrieval-Augmented Generation \\
-LLM & Large Language Model \\
-ASR & Automatic Speech Recognition \\
-CLIP & Contrastive Language-Image Pre-training \\
-GQA & Grouped-Query Attention \\
-HNSW & Hierarchical Navigable Small World \\
-LRU & Least Recently Used \\
-VRAM & Video Random Access Memory \\
-DFD & Data Flow Diagram \\
-ERD & Entity Relationship Diagram \\
-E2E & End-to-End \\
-API & Application Programming Interface \\
+\begin{longtable}{|p{3cm}|p{10.5cm}|}
+\hline
+AURA & AI Unified Retrieval Assistant \\ \hline
+RAG & Retrieval-Augmented Generation \\ \hline
+LLM & Large Language Model \\ \hline
+ASR & Automatic Speech Recognition \\ \hline
+CLIP & Contrastive Language-Image Pre-training \\ \hline
+GQA & Grouped-Query Attention \\ \hline
+HNSW & Hierarchical Navigable Small World \\ \hline
+LRU & Least Recently Used \\ \hline
+VRAM & Video Random Access Memory \\ \hline
+DFD & Data Flow Diagram \\ \hline
+ERD & Entity Relationship Diagram \\ \hline
+E2E & End-to-End \\ \hline
+API & Application Programming Interface \\ \hline
 \end{longtable}
 
 \clearpage
 \pagenumbering{arabic}
 \setcounter{page}{1}
+
+% Restore original chapter title formatting for main chapters
+\titleformat{\chapter}[hang]{\normalfont\bfseries\fontsize{18}{22}\selectfont}{CHAPTER \thechapter}{1em}{}
+\titlespacing*{\chapter}{0pt}{12pt}{10pt}
 
 % ===================== MAIN CHAPTERS =====================
 
@@ -216,13 +461,13 @@ API & Application Programming Interface \\
 
 Retrieval-Augmented Generation (RAG) has emerged as a standard technique for addressing large language model limitations such as hallucination and lack of private context access. By retrieving relevant passages from local knowledge documents and feeding them into the LLM prompt context, systems can generate grounded, factual, and verified answers.
 
-\section{Project Overview}
+\section{PROJECT OVERVIEW}
 \textbf{AURA} is an offline Retrieval-Augmented Generation (RAG) system designed to ingest, index, and query multi-format files locally. The system operates entirely within the host security boundary, utilizing a React and TypeScript client wrapped in Electron, a Java Spring Boot backend service, and a local Ollama inference daemon. By executing all computational tasks locally, the application preserves data sovereignty and eliminates remote cloud dependencies, supporting PDF, DOC, DOCX, PNG, JPG, JPEG, WAV, and MP3 formats natively.
 
-\section{Problem Statement (SIH25231)}
+\section{PROBLEM STATEMENT (SIH25231)}
 The Smart India Hackathon 2025 Problem Statement (PS-25231) requires the development of an offline multimodal Retrieval-Augmented Generation (RAG) system capable of ingesting, indexing, and semantically querying diverse data formats including DOC, PDF, images, and voice recordings. The complete solution must execute locally without cloud dependency while providing accurate context-aware responses. AURA fulfills these requirements through local language models, multimodal embedding pipelines, unified vector retrieval, and citation-supported response generation.
 
-\section{Project Objectives}
+\section{PROJECT OBJECTIVES}
 The specific design objectives of the AURA architecture are:
 \begin{enumerate}
     \item \textbf{Data Sovereignty:} Prevent unauthorized outbound data transfer by enforcing loopback restrictions.
@@ -234,7 +479,7 @@ The specific design objectives of the AURA architecture are:
     \item \textbf{Offline AI Execution:} Execute language models, embedding models, and retrieval services entirely on local hardware without internet access.
 \end{enumerate}
 
-\section{Mapping with SIH Problem Statement}
+\section{MAPPING WITH SIH PROBLEM STATEMENT}
 Table \ref{tab:sih_mapping} details how AURA's implementation directly maps to and satisfies the requirements set forth in the Smart India Hackathon PS-25231 problem statement.
 
 \begin{table}[!ht]
@@ -263,48 +508,48 @@ Secure Environment & Network isolation enforcing complete data privacy inside ho
 
 In this chapter, we review the existing technologies and frameworks relevant to Retrieval-Augmented Generation (RAG), vector databases, audio transcription, visual representation, and client wrappers. We analyze their underlying mechanisms and identify their key limitations when deployed in strict offline or air-gapped security environments.
 
-\section{Survey of Existing Systems and Frameworks}
+\section{SURVEY OF EXISTING SYSTEMS AND FRAMEWORKS}
 
-\subsection{Cloud RAG Systems via Commercial APIs (GPT-4 / Claude)}
+\subsection{CLOUD RAG SYSTEMS VIA COMMERCIAL APIS (GPT-4 / CLAUDE)}
 Cloud-based RAG architectures (such as GPT-4 or Claude APIs) rely on remote HTTPS endpoints for document parsing, embedding generation, and response generation. While offering high capability, they require continuous WAN connectivity. This model introduces severe compliance hazards and data security risks since proprietary documents must cross the enterprise perimeter, making it completely unsuitable for air-gapped operations.
 
-\subsection{LangChain and Llama.cpp Integration}
+\subsection{LANGCHAIN AND LLAMA.CPP INTEGRATION}
 LangChain acts as an orchestration wrapper for LLM applications, while Llama.cpp provides C++ execution of quantized models. Although they support local deployments, standard LangChain pipelines frequently attempt to resolve helper packages or default schemas from Hugging Face on startup. Additionally, Llama.cpp requires low-level compilation flags and manual parameter tuning, which complicates production packaging and distribution to non-technical users.
 
-\subsection{ChromaDB Standalone Vector Database Service}
+\subsection{CHROMADB STANDALONE VECTOR DATABASE SERVICE}
 ChromaDB manages high-speed document indexing and semantic retrieval. Standard standalone configurations are deployed inside containerized environments (such as Docker) exposing REST endpoints on port 8000. In strict offline settings, container runtimes introduce massive footprint overhead and are frequently blocked by local security firewalls or operating system constraints.
 
-\subsection{Weaviate Vector Search Engine}
+\subsection{WEAVIATE VECTOR SEARCH ENGINE}
 Weaviate is a cloud-native vector search engine supporting hybrid queries. While scalable, its standalone server processes incur significant memory overhead (minimum 4GB RAM). This resource consumption makes it impractical to be embedded directly as a lightweight in-process database library within single-user desktop client interfaces.
 
-\subsection{Whisper Automatic Speech Recognition Model}
+\subsection{WHISPER AUTOMATIC SPEECH RECOGNITION MODEL}
 Whisper is a transformer-based speech-to-text model. The default PyTorch execution framework requires downloading model weights on demand from Hugging Face and relies on complex CUDA system libraries. Operating Whisper offline requires pre-cached weights and optimized runtimes like faster-whisper to bypass these heavy dependencies.
 
-\subsection{CLIP (Contrastive Language-Image Pre-Training)}
+\subsection{CLIP (CONTRASTIVE LANGUAGE-IMAGE PRE-TRAINING)}
 CLIP maps text sentences and images into a shared multi-dimensional vector space. Standard visual models rely on online weights loading and heavy machine learning environments. Offline integration requires caching vision model weights locally and applying strict local configuration parameters to block outbound validation requests.
 
-\subsection{LLaMA 3 Language Model Family}
+\subsection{LLAMA 3 LANGUAGE MODEL FAMILY}
 LLaMA 3 is an auto-regressive transformer model optimized for local causal language modeling. Its standard execution requires high system resources (RAM/VRAM) depending on model scale and quantization levels. Managing its execution on diverse local hardware nodes requires a daemon wrapper to control context allocations and CPU thread limits.
 
-\subsection{Nomic Embed Text (nomic-embed-text)}
+\subsection{NOMIC EMBED TEXT (NOMIC-EMBED-TEXT)}
 Nomic Embed Text is an open-source model optimized for long context windows up to 8192 tokens. Local deployment is commonly restricted by the need for external tokenization APIs. AURA resolves this by hosting the model locally via Ollama API bindings, keeping all text representations within the host environment.
 
-\section{Academic Literature Survey}
+\section{ACADEMIC LITERATURE SURVEY}
 In addition to specific software platforms, AURA's design is grounded in several foundational academic works in information retrieval and natural language processing.
 
-\subsection{Retrieval-Augmented Generation (RAG)}
+\subsection{RETRIEVAL-AUGMENTED GENERATION (RAG)}
 The core architecture of retrieval-grounded language modeling was formalized by Lewis et al. \cite{rag_paper}. Their work introduced a framework where an autoregressive generator is conditioned on external documents retrieved using a dense passage retriever. This approach significantly reduces model hallucinations and provides a mechanism for dynamic context integration without modifying model weights. AURA adapts this framework to work entirely on consumer host hardware.
 
-\subsection{Dense Passage Retrieval (DPR)}
+\subsection{DENSE PASSAGE RETRIEVAL (DPR)}
 Karpukhin et al. \cite{dpr_paper} demonstrated that dense vector representations generated by BERT-based bi-encoders can outperform classical sparse retrieval methods like BM25. Their work established that computing the dot product (or cosine similarity) of query and document dense vectors is highly effective for semantic search. AURA leverages this conceptual foundation by utilizing Nomic Embed Text to create dense representations and SQLite to store them as binary blobs.
 
-\subsection{Offline LLM Inference \& Quantization}
+\subsection{OFFLINE LLM INFERENCE \& QUANTIZATION}
 Running LLMs on localized nodes requires lightweight architectures. The transformer foundation established by Vaswani et al. \cite{vaswani} paved the way for deep encoder models like BERT by Devlin et al. \cite{offline_llm} and autoregressive local large language models like LLaMA 3 \cite{llama3}. Local execution is further enhanced by quantization methods, which represent model weights in lower-precision formats (such as 4-bit integer weights). This allows LLaMA 3 models to load into client RAM without swapping, forming the basis for offline inference engines like Ollama.
 
-\subsection{Probabilistic Relevance Models (BM25)}
+\subsection{PROBABILISTIC RELEVANCE MODELS (BM25)}
 While dense search is effective, hybrid systems often build upon classic sparse vector retrieval. The probabilistic relevance framework and the BM25 model, summarized by Robertson and Zaragoza \cite{bm25_paper}, remain standard benchmarks for keyword-based retrieval. Understanding these models helped shape AURA's relevancy filtering logic, ensuring low-relevance matches are discarded before prompt synthesis.
 
-\section{Summary and Comparison of Systems}
+\section{SUMMARY AND COMPARISON OF SYSTEMS}
 Table \ref{tab:system_comparison} provides a comparison matrix analyzing AURA alongside existing approaches.
 
 \begin{table}[!ht]
@@ -332,7 +577,7 @@ Whisper PyTorch & Yes & Yes (Audio) & No & Direct weights download from Hugging 
 
 In this chapter, we analyze the current system flaws in standard retrieval systems, detail the proposed AURA system, and present a feasibility study based on project constraints.
 
-\section{Existing System}
+\section{EXISTING SYSTEM}
 Many enterprise Retrieval-Augmented Generation (RAG) deployments rely heavily on cloud infrastructure, requiring local document repositories to be uploaded to remote endpoints for parsing, chunking, and vector embedding. While offline RAG systems also exist, conventional setups frequently depend on commercial cloud servers where query validation is performed at remote locations. This design exposes sensitive data to transit paths outside the enterprise boundary. AURA is specifically designed to satisfy the requirements of SIH25231, targeting completely offline, air-gapped environments where no external connections are permitted.
 \begin{itemize}
     \item \textbf{Security Vulnerabilities:} Data leaves the enterprise perimeter. File uploads are exposed to interception, server-side data extraction, and commercial model training policies.
@@ -340,7 +585,7 @@ Many enterprise Retrieval-Augmented Generation (RAG) deployments rely heavily on
     \item \textbf{Operational Costs:} Continuous transactional billing per token or per API request, creating unpredictable long-term maintenance costs.
 \end{itemize}
 
-\section{Proposed System}
+\section{PROPOSED SYSTEM}
 AURA provides a self-contained, offline retrieval system packaged as a single desktop application installer. It executes all processing on the user's host hardware, implementing a local JRE, Python sidecars, SQLite vector storage, and Ollama integration within a network-isolated boundary.
 
 Table \ref{tab:existing_vs_proposed} provides a structural comparison between standard cloud-based RAG architectures and the proposed AURA system.
@@ -360,15 +605,15 @@ Requires manual Docker/Server environment setups. & Single package installation,
 \label{tab:existing_vs_proposed}
 \end{table}
 
-\section{Feasibility Study}
+\section{FEASIBILITY STUDY}
 
-\subsection{Technical Feasibility}
+\subsection{TECHNICAL FEASIBILITY}
 The local hardware target must support lightweight execution of local AI engines. By offloading LLM (Llama 3) and embedding (Nomic) inference to a local Ollama process, the system can utilize system CPUs or NVIDIA GPUs seamlessly. AURA uses a CPU-safe default setting (\texttt{num-gpu: 0}) to run on common office hardware, and allows NVIDIA GPU acceleration configuration via UI settings. The Java Spring Boot backend provides multi-threaded scheduling, while Python sidecars handle faster-whisper and CLIP models independently. This modular division makes AURA highly feasible on consumer hardware.
 
-\subsection{Economic Feasibility}
+\subsection{ECONOMIC FEASIBILITY}
 There are no API usage costs or licensing fees since AURA is composed entirely of open-source software (Spring Boot, Electron, Vite, Ollama, SQLite). Once compiled and deployed, the system runs with zero recurring operational charges. The developer pipeline is optimized using standard open tools, ensuring high economic viability.
 
-\subsection{Operational Feasibility}
+\subsection{OPERATIONAL FEASIBILITY}
 The system does not require any technical experience to maintain. On boot, the Electron wrapper launches Ollama, validates local models, starts the Java backend, and displays a unified dashboard. For air-gapped environments, the silent installation script embeds the JRE, Python virtual environment, database, and models, eliminating command-line dependency downloads.
 
 % ==========================================
@@ -379,7 +624,7 @@ The system does not require any technical experience to maintain. On boot, the E
 
 This chapter details the exact hardware and software resources required to run and build the AURA project.
 
-\section{Hardware Requirements}
+\section{HARDWARE REQUIREMENTS}
 The hardware requirements are grounded in local CPU and RAM constraints for executing LLaMA 3 (8B parameters) and local vector operations. Table \ref{tab:hardware_requirements} outlines these configurations.
 
 The storage recommendation of 20 GB is determined by the size of the required model weights and runtimes when deployed completely offline. Specifically, the quantized LLaMA 3 8B model requires approximately 4.7 GB, the Nomic Embed Text model takes around 300 MB, and the CLIP and Whisper models require a combined space of approximately 4 GB. The remaining storage is allocated for the bundled Java Runtime Environment (JRE), the Python virtual environment containing the execution libraries, and local database cache files. Dedicated graphics cards (such as the NVIDIA RTX series) are recommended to accelerate the inference speeds, but they are not mandatory; the application supports CPU execution as a fallback configuration.
@@ -400,7 +645,7 @@ The storage recommendation of 20 GB is determined by the size of the required mo
 \label{tab:hardware_requirements}
 \end{table}
 
-\section{Software Requirements}
+\section{SOFTWARE REQUIREMENTS}
 The software specifications are derived directly from the application pom.xml, package.json, and python scripts configurations. These dependencies are listed in Table \ref{tab:software_requirements}.
 
 \begin{table}[!ht]
@@ -426,11 +671,11 @@ The software specifications are derived directly from the application pom.xml, p
 \label{tab:software_requirements}
 \end{table}
 
-\section{Host Operating System and Execution Permissions}
+\section{HOST OPERATING SYSTEM AND EXECUTION PERMISSIONS}
 AURA is designed to run natively on 64-bit architectures, with targeted optimization for Windows 10 and Windows 11 host operating systems. The Electron desktop wrapper coordinates binary execution and may require administrator permissions depending on system configuration to launch local Spring Boot JAR services and background sidecar processes. The build and distribution system runs inside the user space, utilizing PowerShell execution environments to resolve dependencies. These staging procedures allow local scripts to initialize database resources, create write-protected directory structure logs, and check communication channels without external administrative elevations.
 
-\section{Local Inference Engine Constraints}
-The local AI model processes (LLaMA 3 and Nomic Embed Text) run under the direct management of the local Ollama daemon. The hardware configuration requires at least 8GB of free memory to load model weights without swapping to disk, which would cause performance degradation. For standard workstations without dedicated CUDA GPUs, the backend configures Ollama to run on CPU threads, capping concurrent generation requests to match the host physical core count. On stations equipped with dedicated hardware, the UI allows full GPU layer offloading, which reduces token generation latency significantly, transitioning the primary speed constraint to the host physical CPU capability and VRAM transfer speed.
+\section{LOCAL INFERENCE ENGINE CONSTRAINTS}
+The local LLaMA 3 and Nomic Embed Text models execute under the local Ollama daemon. The system requires at least 8GB of free memory to load model weights and prevent performance-degrading disk swapping. For standard workstations, the backend configures Ollama to run on CPU threads, capping concurrent generation requests to match the physical core count. On stations with dedicated GPUs, full layer offloading is supported to reduce token generation latency.
 
 % ==========================================
 % CHAPTER 5: SYSTEM DESIGN
@@ -440,7 +685,7 @@ The local AI model processes (LLaMA 3 and Nomic Embed Text) run under the direct
 
 In this chapter, we outline the structural and logical design of AURA, mapping out components, schema relationships, data flows, and module responsibilities.
 
-\section{System Architecture}
+\section{SYSTEM ARCHITECTURE}
 AURA uses a multi-layered local desktop architecture. The React/TypeScript frontend running inside Electron connects to the Spring Boot core (Java 21) via non-blocking WebSockets on port 8080. The backend manages the document parsing pipelines, coordinates Python sidecar processes, and queries the database storage layer. Persistence is managed via an embedded SQLite database and a synchronized in-memory retrieval cache. Figure \ref{fig-architecture} illustrates the system components.
 
 The architecture directly satisfies the Smart India Hackathon PS-25231 requirements by integrating local document ingestion, multimodal embedding generation, semantic vector retrieval, and offline language generation within a single desktop application. Each processing stage executes entirely on the host system, ensuring complete data privacy and eliminating dependence on external cloud infrastructure.
@@ -485,7 +730,7 @@ The complete query execution and generation pipeline is defined by the following
 \label{fig-architecture}
 \end{figure}
 
-\section{Database Design}
+\section{DATABASE DESIGN}
 The relational storage schema is managed locally inside the SQLite database file (\texttt{aura.db}) and mapped via Java JPA Hibernate interfaces. To maximize retrieval speed, Nomic-generated embeddings are serialized as binary BLOBs inside the \texttt{vector\_chunks} table. At startup, the Local Vector Retrieval Service loads this table into memory to enable instant cosine similarity lookups. Figure \ref{fig-er-diagram} shows the database schema entity relationships.
 
 The schema includes the following design decisions and relationships:
@@ -518,7 +763,7 @@ The schema includes the following design decisions and relationships:
 \label{fig-er-diagram}
 \end{figure}
 
-\section{Data Flow Diagram}
+\section{DATA FLOW DIAGRAM}
 The data flow diagram traces the prompt and retrieval lifecycle. When a user queries the interface, the WebSocket handler routes the prompt to the backend, which requests the query embedding from the local Ollama process. The search service queries the SQLite in-memory index for relevant context blocks. The context is formatted into a prompt template and processed by LLaMA 3, with output tokens streamed back dynamically to the UI. Figure \ref{fig-dfd} illustrates these processing loops.
 
 \begin{figure}[!ht]
@@ -550,7 +795,7 @@ The data flow diagram traces the prompt and retrieval lifecycle. When a user que
 \label{fig-dfd}
 \end{figure}
 
-\section{Module Design}
+\section{MODULE DESIGN}
 The backend consists of specific service classes designed for performance, security, and responsiveness:
 \begin{itemize}
     \item \textbf{DocumentService:} Handles PDF, DOC, and DOCX document parsing and metadata extraction, and submits them to the background worker pool to keep the HTTP response highly responsive, avoiding client timeout or UI locking.
@@ -571,7 +816,7 @@ The backend consists of specific service classes designed for performance, secur
 
 In this chapter, we outline the mathematical framework and core programmatic pipelines for document parsing, chunking, embedding generation, vector similarity mapping, and WebSocket-based generation routing.
 
-\section{Recursive Sentence-Boundary Paragraph Chunking}
+\section{RECURSIVE SENTENCE-BOUNDARY PARAGRAPH CHUNKING}
 To index files without losing semantic coherence, AURA implements a localized sentence-boundary text chunker. Standard character-based chunking limits split sentences midway, destroying context. The Java backend reads PDF files via Apache PDFBox, splits text into sentences using basic boundary rules, and recursively joins adjacent sentences until a threshold of 250 words is reached, maintaining a 50-word overlap to preserve contextual relationships at chunk borders.
 
 The chunking algorithm executes in a background thread and conforms to the following operational pipeline:
@@ -597,7 +842,7 @@ The chunking algorithm executes in a background thread and conforms to the follo
 \end{verbatim}
 \end{singlespace}
 
-\section{SQLite Vector Retrieval and Cosine Similarity}
+\section{SQLITE VECTOR RETRIEVAL AND COSINE SIMILARITY}
 The system calculates the semantic similarity between query vectors and stored document segments using cosine similarity mathematics. The calculation computes the dot product of two multi-dimensional embedding arrays, which is then divided by the product of their Euclidean norms. If either vector contains only zeros, the similarity score is set to zero to prevent runtime division errors. The search service utilizes this normalized similarity score to rank all candidate document segments, selecting the most relevant segments to insert into the context window.
 
 The cosine similarity score between a query vector $Q$ and a document segment vector $D$ is defined mathematically by Equation \ref{eq:cosine}:
@@ -626,19 +871,19 @@ The retrieval pipeline follows a multi-stage validation flow as shown:
 \end{tikzpicture}
 \end{center}
 
-\section{WebSocket Streaming and Virtual Thread Execution}
+\section{WEBSOCKET STREAMING AND VIRTUAL THREAD EXECUTION}
 The text generation engine coordinates asynchronous response streaming using Spring Boot and Java virtual threads. On receiving a WebSocket request, the backend verifies that the destination URL points to a loopback address, preventing remote data leakage. The request is then submitted to an execution pool that spawns lightweight virtual threads. These virtual threads handle the incoming streaming HTTP socket connection from the local Ollama process. This setup reads and delivers token chunks back to the client interface in real time, preventing platform thread starvation during concurrent queries and maintaining UI responsiveness.
 
-\section{Strict Local Network Boundary Enforcement}
+\section{STRICT LOCAL NETWORK BOUNDARY ENFORCEMENT}
 The network guard interceptor is designed to block all outbound HTTP connections that target addresses outside the host system. It implements a Spring client request interceptor that captures every outbound REST and HTTP query before it leaves the backend service layer. The interceptor extracts the destination host and matches it against an allowlist of loopback addresses, which are restricted to local host names. If the host attempts to reach any external domain or remote IP address, the execution is terminated and a security exception is thrown, preserving the security of the air-gapped environment.
 
-\section{Installer Build and Footprint Optimization}
+\section{INSTALLER BUILD AND FOOTPRINT OPTIMIZATION}
 The build orchestration process uses an automated script to optimize the desktop application distribution package. During package creation, the script removes unnecessary artifacts, caches, and test suites from the local Python virtual environment folders. It identifies and deletes compiled Python bytecode, distribution descriptors, and developer type declarations. Additionally, it strips duplicate header inclusions and C++ libraries from Python machine learning directories like PyTorch, reducing overall installer size significantly to ensure smooth distribution.
 
-\section{Database and Vector Storage Staging}
+\section{DATABASE AND VECTOR STORAGE STAGING}
 Persisting parsed text chunks and metadata is managed using a localized Hibernate ORM configurations mapping to a SQLite database backend. A single relational database file (\texttt{aura.db}) is initialized within the user application data folder on startup. The schema manages relational entries for documents, indexing jobs, system configurations, and chat sessions. The system serializes 768-dimensional float arrays from local Nomic Embed Text models directly into database BLOB structures, bypassing the deployment overhead of separate database containers.
 
-\section{Runtime Packaging and Local Staging Layout}
+\section{RUNTIME PACKAGING AND LOCAL STAGING LAYOUT}
 To support distribution to air-gapped host nodes, AURA stages all required modules in relative folders under the main desktop launcher. The installer packages a lightweight Java Runtime Environment (JRE) version 21 and a dedicated virtual environment folder containing all Python libraries. During installation, the launcher registers relative endpoints to locate local Python models (Whisper and CLIP) and sets up loopback network ports. This structured local layout allows AURA to boot, verify binary processes, and execute local AI models without external environment setups.
 
 % ==========================================
@@ -649,7 +894,7 @@ To support distribution to air-gapped host nodes, AURA stages all required modul
 
 This chapter details the testing process, verifying offline stability, model execution, and validation.
 
-\section{Testing Methodology}
+\section{TESTING METHODOLOGY}
 As observed during codebase analysis, the repository does not contain an automated unit testing suite (no \texttt{src/test} folders exist in the project structure). To verify application integrity, manual black-box verification cycles were executed:
 \begin{itemize}
     \item \textbf{Functional Verification:} Testing the chat interface, file uploads, document list, settings modification, and history components.
@@ -657,7 +902,7 @@ As observed during codebase analysis, the repository does not contain an automat
     \item \textbf{Isolation Testing:} Disabling local Wi-Fi and network drivers to confirm that document parsing, audio transcription, and LLM text generation remain fully functional offline.
 \end{itemize}
 
-\section{Test Case Specification}
+\section{TEST CASE SPECIFICATION}
 Table \ref{tab:test_cases} outlines the manual test cases verified during local execution, including specific boundary conditions and component failures.
 
 \begin{table}[!ht]
@@ -678,7 +923,7 @@ Table \ref{tab:test_cases} outlines the manual test cases verified during local 
 \label{tab:test_cases}
 \end{table}
 
-\section{Test Isolation and Loopback Leak Verification}
+\section{TEST ISOLATION AND LOOPBACK LEAK VERIFICATION}
 To guarantee that user documents never leak across the offline security boundaries, testing cycles included verification using network boundary simulation tools. The host operating system's external ethernet and wireless interfaces were disabled, and a mock DNS redirect service was configured to capture all WAN call attempts. The test cases validated that Spring Boot REST requests to non-loopback hosts were captured by the client request interceptor, terminating execution and preventing data transmission. System logs confirmed that the application successfully resolved internal requests without attempting external internet handshakes.
 
 % ==========================================
@@ -689,10 +934,10 @@ To guarantee that user documents never leak across the offline security boundari
 
 In this chapter, we present the visual layouts of the deployed interface and discuss system performance characteristics.
 
-\section{Visual Interface Layout}
+\section{VISUAL INTERFACE LAYOUT}
 We present native visual layouts of the system interfaces. Every screenshot is displayed within a consistent, framed 16:9 laptop window scale to align the graphic presentations.
 
-\subsection{Unified Chat Window}
+\subsection{UNIFIED CHAT WINDOW}
 The chat interface serves as the primary gateway for user interaction, providing a clean, responsive layout built with React and TypeScript. When a query is entered, the system streams response tokens dynamically to prevent latency perception, formatting the output using markdown specifications. Page-level citations are rendered as interactive links below the response, allowing users to trace the source document chunks directly. The interface is optimized to remain functional on offline client systems, caching session history locally inside SQLite database records.
 
 \begin{figure}[!ht]
@@ -708,7 +953,7 @@ The chat interface serves as the primary gateway for user interaction, providing
     \label{fig:chat_interface}
 \end{figure}
 
-\subsection{Document Library View}
+\subsection{DOCUMENT LIBRARY VIEW}
 The document library view supports administration of local knowledge files, allowing users to drag and drop multiple items concurrently. It displays lists of parsed documents, indicating file sizes, upload timestamps, total page counts, and the current indexing progress. Users can trigger new indexing processes, which execute on background threads, or delete documents to automatically cascade delete relational vectors from the database, ensuring clean system maintenance.
 
 \begin{figure}[!ht]
@@ -724,7 +969,7 @@ The document library view supports administration of local knowledge files, allo
     \label{fig:library_view}
 \end{figure}
 
-\subsection{System Settings Screen}
+\subsection{SYSTEM SETTINGS SCREEN}
 The settings interface allows system configurations to be customized to match local workstation capabilities. Users can select active local language models, define system temperature parameters, set query relevance thresholds, and configure GPU acceleration offloading settings. Capping thread allocations to match CPU core counts ensures that the background inference engine operates safely without causing system freezes or RAM starvation.
 
 \begin{figure}[!ht]
@@ -740,10 +985,10 @@ The settings interface allows system configurations to be customized to match lo
     \label{fig:settings_view}
 \end{figure}
 
-\section{Multimodal Retrieval Validation}
+\section{MULTIMODAL RETRIEVAL VALIDATION}
 System verification cycles successfully validated the ingestion pipeline for all targeted formats. DOC/DOCX, PDF, images, and audio files were successfully processed, indexed, and retrieved. Each format was converted into its corresponding semantic representation within the unified vector retrieval layer, ensuring that cross-modal queries returned relevant context segments regardless of source format.
 
-\section{Compliance with SIH Requirements}
+\section{COMPLIANCE WITH SIH REQUIREMENTS}
 Table \ref{tab:sih_compliance} details the compliance status and specific local implementation strategies mapped directly to each target requirement of Smart India Hackathon Problem Statement PS-25231.
 
 \begin{table}[!ht]
@@ -765,7 +1010,7 @@ Zero Internet Dependency & \checkmark~Security interceptors enforce isolated hos
 \label{tab:sih_compliance}
 \end{table}
 
-\section{Performance Analysis}
+\section{PERFORMANCE ANALYSIS}
 Our performance analysis focuses on system resource consumption and footprint adjustments:
 \begin{itemize}
     \item \textbf{Disk Footprint Reduction:} The automated Powershell stripping script removes redundant virtual environment files (such as PyTorch C++ header files and compiled caches), reducing the overall storage space occupied by duplicate machine learning libraries and metadata caches. This optimization ensures a streamlined compiled MSIX installer package size suitable for local offline distributions.
@@ -781,10 +1026,10 @@ Our performance analysis focuses on system resource consumption and footprint ad
 
 This chapter concludes the project report and outlines potential future enhancements.
 
-\section{Conclusion}
+\section{CONCLUSION}
 In conclusion, AURA successfully satisfies the objectives of Smart India Hackathon Problem Statement PS-25231 by delivering a fully offline, secure, and multimodal Retrieval-Augmented Generation platform. By executing LLaMA 3, Whisper, and CLIP models entirely on local hardware, the system enables semantic indexing and retrieval across DOC, DOCX, PDF, image, and voice files while guaranteeing complete data privacy. The developed prototype demonstrates the feasibility of enterprise-grade AI assistants operating within air-gapped computing environments without relying on external cloud dependencies.
 
-\section{Future Enhancements}
+\section{FUTURE ENHANCEMENTS}
 While functional, future development phases could improve resource usage and features:
 \begin{enumerate}
     \item \textbf{WebGPU Inference Acceleration:} Replacing Python-based embedding sidecars with WebGPU interfaces inside the Electron wrapper, reducing storage and installer footprint significantly.
@@ -792,7 +1037,7 @@ While functional, future development phases could improve resource usage and fea
     \item \textbf{Local Multi-Modal Indexing:} Integrating local vision-language models (such as LLaVA) directly into the chat interface to support image-based question answering.
 \end{enumerate}
 
-\section{Lessons Learned and Design Insights}
+\section{LESSONS LEARNED AND DESIGN INSIGHTS}
 Developing and evaluating AURA highlighted several engineering challenges related to deploying generative model nodes on standard client machines. First, relying on in-memory search structures in Java allows high performance but restricts the maximum number of vector chunks to prevent RAM exhaustion. Implementing a dynamic cache cleanup policy (like LRU collections) is necessary when managing very large document libraries. Second, coordinating relative runtime environments (JRE and Python structures) is critical to ensure that target installations can run smoothly in offline nodes.
 
 \clearpage
