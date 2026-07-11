@@ -1,90 +1,57 @@
-:::::: center
-::: minipage
-![image](./logo.png){width="2.2cm"}
-:::
+<div align="center">
+  <img src="./mark/logo.png" width="100"/>
+  <h2>AURA - AI UNIFIED RETRIEVAL ASSISTANT</h2>
+  <img src="./mark/naac.png" width="100"/>
+  <br/>
+  <strong>A PROJECT REPORT</strong><br/><br/>
+  <em>Submitted by</em><br/><br/>
+  <strong>THARUNKUMAR K (922524205171)</strong><br/><br/>
+  <em>Pursuing the degree of</em><br/><br/>
+  <strong>BACHELOR OF TECHNOLOGY</strong><br/>
+  in<br/>
+  <strong>INFORMATION TECHNOLOGY</strong><br/><br/>
+  <strong>V.S.B. ENGINEERING COLLEGE, KARUR-639 111</strong><br/>
+  <em>(An Autonomous Institution)</em><br/><br/>
+  <strong>JUNE 2026</strong>
+</div>
 
-::: minipage
-**AURA - AI UNIFIED RETRIEVAL\
-ASSISTANT**
-:::
+---
 
-::: minipage
-![image](./naac.png){width="2.2cm"}
-:::
+<h3 align="center">DECLARATION</h3>
 
-**A PROJECT REPORT**
+I declare that the project report on **"AURA - AI UNIFIED RETRIEVAL ASSISTANT"** is the result of original work done by me and best of my knowledge, similar work has not been submitted to **"ANNA UNIVERSITY CHENNAI"** for the requirement of Degree, Bachelor of Technology.
 
-*Submitted by*
+This project report is submitted to the partial fulfillment of the requirement of the award of Degree of Bachelor of Technology.
 
-**THARUNKUMAR K (922524205171)**
+<div align="right">
+  <strong>SIGNATURE</strong><br/><br/>
+  _______________________<br/>
+  <strong>THARUNKUMAR K</strong>
+</div>
 
-*Pursuing the degree of*
+<br/>
+<strong>Place:</strong> Karur<br/>
+<strong>Date:</strong>
 
-**BACHELOR OF TECHNOLOGY**\
-in\
-**INFORMATION TECHNOLOGY**
+---
 
-**V.S.B. ENGINEERING COLLEGE, KARUR-639 111**\
-*(An Autonomous Institution)*
+<h3 align="center">ACKNOWLEDGEMENT</h3>
 
-**JUNE 2026**
-::::::
+First and foremost, I express my thanks to my parents for providing me with a very nice environment for doing this project. I wish to express my sincere thanks to our Founder and Chairman **Shri. V.S.BALSAMY B.Sc., B.L.,** for his Endeavor in educating me in this premier institution.
 
-::: center
-**DECLARATION**
-:::
+I wish to express my appreciation and gratefulness to our Principal, **Dr.C.VENNILA M.E., Ph.D.,** and Vice Principal **Dr.T.S.KIRUBASANKAR M.E., Ph.D** for their encouragement and sincere guidance.
 
-I declare that the project report on **"AURA - AI UNIFIED RETRIEVAL
-ASSISTANT"** is the result of original work done by me and best of my
-knowledge, similar work has not been submitted to **"ANNA UNIVERSITY
-CHENNAI"** for the requirement of Degree, Bachelor of Technology.
+I am grateful to my head of the department **Dr.P.AROCKIA MARY M.E., Ph.D.,** and my project coordinator **Mr.D.VENGAIMARBHAN M.E.,** Assistant Professor, Department of Information Technology for their valuable support.
 
-This project report is submitted to the partial fulfillment of the
-requirement of the award of Degree of Bachelor of Technology.
+I express my thanks to the supervisor of my project **Mr.D.VENGAIMARBHAN M.E.**, Assistant Professor, Department of Information Technology, for guidance throughout the course of my project.
 
-::: flushright
-**SIGNATURE**
+My sincere thanks to all the teaching staff of V.S.B Engineering College and our friends for their help in the successful completion of this project work.
 
-------------------------------------------------------------------------
+Finally, I bow before God, the almighty who always had a better plan for us. We give our praise and glory to Almighty God for successful completion of this project.
 
-THARUNKUMAR K
-:::
+---
 
-Place: Karur
-
-Date:
-
-::: center
-**ACKNOWLEDGEMENT**
-:::
-
-First and foremost, I express my thanks to my parents for providing me
-with a very nice environment for doing this project. I wish to express
-my sincere thanks to our Founder and Chairman **Shri. V.S.BALSAMY B.Sc.,
-B.L.,** for his Endeavor in educating me in this premier institution.
-
-I wish to express my appreciation and gratefulness to our Principal,
-**Dr.C.VENNILA M.E., Ph.D.,** and Vice Principal **Dr.T.S.KIRUBASANKAR
-M.E., Ph.D** for their encouragement and sincere guidance.
-
-I am grateful to my head of the department **Dr.P.AROCKIA MARY M.E.,
-Ph.D.,** and my project coordinator **Mr.D.VENGAIMARBHAN M.E.,**
-Assistant Professor, Department of Information Technology for their
-valuable support.
-
-I express my thanks to the supervisor of my project **Mr.D.VENGAIMARBHAN
-M.E.**, Assistant Professor, Department of Information Technology, for
-guidance throughout the course of my project.
-
-My sincere thanks to all the teaching staff of V.S.B Engineering College
-and our friends for their help in the successful completion of this
-project work.
-
-Finally, I bow before God, the almighty who always had a better plan for
-us. We give our praise and glory to Almighty God for successful
-completion of this project.
-
-# ABSTRACT {#abstract .unnumbered}
+# ABSTRACT
 
 Modern organizations operate in increasingly complex digital
 environments where the retrieval of confidential information must be
