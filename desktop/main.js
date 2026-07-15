@@ -22,7 +22,7 @@
  * W-02   FIX: recursive async polling replaced with iterative while loop
  */
 
-const { app, BrowserWindow, ipcMain, shell, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog } = require('electron');
 const path = require('path');
 const { spawn } = require('child_process');
 const http = require('http');
@@ -182,25 +182,19 @@ async function findOllamaExe() {
  * No renderer-side IPC, no polling — clean and instant.
  */
 async function showOllamaNotInstalledDialog() {
-    const DOWNLOAD_URL = 'https://ollama.com/download/windows';
-
-    const { response } = await dialog.showMessageBox({
+    await dialog.showMessageBox({
         type: 'warning',
-        title: 'Ollama Not Found — AURA',
-        message: 'Ollama is not installed on this device.',
+        title: 'Ollama Required — AURA',
+        message: 'Ollama runtime is not installed on this device.',
         detail:
-            'AURA requires Ollama to run local AI models.\n\n' +
-            'Click "Download Ollama" to open the official installer page in your browser, ' +
-            'then relaunch AURA after installation completes.',
-        buttons: ['Download Ollama', 'Exit'],
+            'AURA requires the Ollama runtime to be installed before launching.\n\n' +
+            'Please install Ollama separately and then relaunch AURA.',
+        buttons: ['OK'],
         defaultId: 0,
-        cancelId: 1,
+        cancelId: 0,
         icon: path.join(__dirname, 'assets', 'icon.ico'),
     });
 
-    if (response === 0) {
-        await shell.openExternal(DOWNLOAD_URL);
-    }
     app.quit();
 }
 

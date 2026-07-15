@@ -1,7 +1,7 @@
 {
   "name": "aura-desktop",
   "version": "1.0.0",
-  "description": "Aura – AI Unified Retrieval Assistant - Tharunkumar",
+  "description": "Aura – AI Unified Retrieval Assistant",
   "author": "TharunkumarK",
   "main": "main.js",
   "scripts": {
@@ -15,7 +15,7 @@
   },
   "build": {
     "appId": "com.aura.airetrieval.desktop",
-    "productName": "Aura – AI Unified Retrieval Assistant - Tharunkumar",
+    "productName": "Aura",
     "copyright": "Copyright © 2025 Aura AI",
     "compression": "normal",
     "removePackageScripts": true,
@@ -88,7 +88,7 @@
     "appx": {
       "applicationId": "AuraAIUnifiedRetrievalAssistant",
       "backgroundColor": "#0F172A",
-      "displayName": "Aura – AI Unified Retrieval Assistant - Tharunkumar",
+      "displayName": "Aura",
       "identityName": "TharunkumarK.AuraAIUnifiedRetrievalAssistant-Tharu",
       "publisher": "CN=45B777BE-50D5-4401-8119-B115CE517C3D",
       "publisherDisplayName": "TharunkumarK",

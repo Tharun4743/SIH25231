@@ -6,9 +6,10 @@ import { Cpu, Terminal, Eye, Sparkles, LayoutGrid, Hourglass } from "lucide-reac
 interface ChatWindowProps {
   messages: ChatMessage[];
   isStreaming: boolean;
+  onReportIssue: (messageId: string, messageText: string) => void;
 }
 
-export default function ChatWindow({ messages, isStreaming }: ChatWindowProps) {
+export default function ChatWindow({ messages, isStreaming, onReportIssue }: ChatWindowProps) {
   const scrollRef = useRef<HTMLDivElement>(null);
 
   // Auto-scroll to bottom on new content
@@ -96,7 +97,7 @@ export default function ChatWindow({ messages, isStreaming }: ChatWindowProps) {
             </div>
 
             {messages.map((msg) => (
-              <MessageBubble key={msg.id} message={msg} />
+              <MessageBubble key={msg.id} message={msg} onReportIssue={onReportIssue} />
             ))}
 
             {/* Typing / Streaming State */}

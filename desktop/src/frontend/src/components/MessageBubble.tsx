@@ -1,15 +1,17 @@
 import React, { useState } from "react";
 import { ChatMessage } from "../types";
-import { ChevronDown, ChevronRight, FileCheck, Calendar, User, Cpu } from "lucide-react";
+import { ChevronDown, ChevronRight, FileCheck, Calendar, User, Cpu, Flag } from "lucide-react";
 import SourceCard from "./SourceCard";
 
 interface MessageBubbleProps {
   message: ChatMessage;
   key?: string | number;
+  onReportIssue?: (messageId: string, messageText: string) => void;
 }
 
-export default function MessageBubble({ message }: MessageBubbleProps) {
+export default function MessageBubble({ message, onReportIssue }: MessageBubbleProps) {
   const [showSources, setShowSources] = useState(true);
+  const [isHovered, setIsHovered] = useState(false);
   const isUser = message.role === "user";
 
   // Simple and highly robust regex parser for Markdown blocks (Bold, Lists, Code)
@@ -166,48 +168,69 @@ export default function MessageBubble({ message }: MessageBubbleProps) {
         )}
       </div>
 
-      {/* Bubble Box */}
+      {/* Bubble Box + Report button wrapper */}
       <div
-        className={`rounded-2xl transition-all duration-200 border ${
-          isUser
-            ? "bg-primary hover:bg-primary-hover border-primary/30 text-white rounded-tr-none p-4.5 max-w-[80%] md:max-w-[70%] shadow-lg shadow-primary/10"
-            : "bg-card-bg hover:bg-card-bg/90 border-border-default text-text-primary rounded-tl-none p-5 max-w-[90%] md:max-w-[85%] shadow-md"
-        }`}
+        className="relative group/bubble"
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
-        {/* Render Text / Markdown */}
-        <div className={`space-y-1.5 ${isUser ? "text-white" : "text-text-secondary"}`}>
-          {formatText(message.text)}
+        <div
+          className={`rounded-2xl transition-all duration-200 border ${
+            isUser
+              ? "bg-primary hover:bg-primary-hover border-primary/30 text-white rounded-tr-none p-4.5 max-w-[80%] md:max-w-[70%] shadow-lg shadow-primary/10"
+              : "bg-card-bg hover:bg-card-bg/90 border-border-default text-text-primary rounded-tl-none p-5 max-w-[90%] md:max-w-[85%] shadow-md"
+          }`}
+        >
+          {/* Render Text / Markdown */}
+          <div className={`space-y-1.5 ${isUser ? "text-white" : "text-text-secondary"}`}>
+            {formatText(message.text)}
+          </div>
+
+          {/* Cited Sources for Assistant Response */}
+          {!isUser && message.sources && message.sources.length > 0 && (
+            <div className="mt-4 border-t border-border-default/80 pt-4">
+              {/* Collapse Trigger */}
+              <button
+                type="button"
+                className="flex items-center gap-1.5 text-text-secondary hover:text-text-primary transition-colors cursor-pointer select-none group focus:outline-none"
+                onClick={() => setShowSources(!showSources)}
+              >
+                {showSources ? (
+                  <ChevronDown className="w-4 h-4 text-text-muted group-hover:scale-110 transition-transform" />
+                ) : (
+                  <ChevronRight className="w-4 h-4 text-text-muted group-hover:scale-110 transition-transform" />
+                )}
+                <span className="text-xs font-bold flex items-center gap-1.5">
+                  <FileCheck className="w-3.5 h-3.5 text-status-success" />
+                  {message.sources.length} {message.sources.length === 1 ? "Source" : "Sources"} Grounded
+                </span>
+              </button>
+
+              {/* Citations Grid */}
+              {showSources && (
+                <div className="mt-3.5 grid grid-cols-1 md:grid-cols-2 gap-3">
+                  {message.sources.map((source, idx) => (
+                    <SourceCard key={idx} source={source} />
+                  ))}
+                </div>
+              )}
+            </div>
+          )}
         </div>
 
-        {/* Cited Sources for Assistant Response */}
-        {!isUser && message.sources && message.sources.length > 0 && (
-          <div className="mt-4 border-t border-border-default/80 pt-4">
-            {/* Collapse Trigger */}
-            <button
-              type="button"
-              className="flex items-center gap-1.5 text-text-secondary hover:text-text-primary transition-colors cursor-pointer select-none group focus:outline-none"
-              onClick={() => setShowSources(!showSources)}
-            >
-              {showSources ? (
-                <ChevronDown className="w-4 h-4 text-text-muted group-hover:scale-110 transition-transform" />
-              ) : (
-                <ChevronRight className="w-4 h-4 text-text-muted group-hover:scale-110 transition-transform" />
-              )}
-              <span className="text-xs font-bold flex items-center gap-1.5">
-                <FileCheck className="w-3.5 h-3.5 text-status-success" />
-                {message.sources.length} {message.sources.length === 1 ? "Source" : "Sources"} Grounded
-              </span>
-            </button>
-
-            {/* Citations Grid */}
-            {showSources && (
-              <div className="mt-3.5 grid grid-cols-1 md:grid-cols-2 gap-3">
-                {message.sources.map((source, idx) => (
-                  <SourceCard key={idx} source={source} />
-                ))}
-              </div>
-            )}
-          </div>
+        {/* Report AI Content button — visible on hover for assistant messages only */}
+        {!isUser && onReportIssue && (
+          <button
+            type="button"
+            onClick={() => onReportIssue(message.id, message.text)}
+            title="Report this AI-generated response"
+            className={`absolute -bottom-2 right-2 flex items-center gap-1.5 px-2.5 py-1 rounded-full border border-border-default bg-card-bg text-text-muted text-[10px] font-bold uppercase tracking-wider shadow-md transition-all duration-200 hover:border-status-error-border/50 hover:text-status-error hover:bg-status-error-bg/10 select-none ${
+              isHovered ? "opacity-100 translate-y-0" : "opacity-0 translate-y-1 pointer-events-none"
+            }`}
+          >
+            <Flag className="w-3 h-3" />
+            Report
+          </button>
         )}
       </div>
     </div>

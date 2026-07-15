@@ -6,6 +6,7 @@ import HistoryView from "./components/HistoryView";
 import SettingsView from "./components/SettingsView";
 import FileUploader from "./components/FileUploader";
 import AudioRecorder from "./components/AudioRecorder";
+import ReportIssueModal from "./components/ReportIssueModal";
 import { DocumentInfo, ChatMessage, SourceCitation } from "./types";
 import { fetchDocuments, deleteDocument, fetchSessions, fetchSessionChats, deleteSession } from "./services/api";
 import { useWebSocket } from "./hooks/useWebSocket";
@@ -65,6 +66,22 @@ export default function App() {
     const saved = localStorage.getItem("aura-theme");
     return saved !== "light"; // default to dark
   });
+
+  // Report AI content state
+  const [reportTarget, setReportTarget] = useState<{ id: string; text: string } | null>(null);
+
+  const handleReportIssue = (messageId: string, messageText: string) => {
+    setReportTarget({ id: messageId, text: messageText });
+  };
+
+  const handleReportClose = () => {
+    setReportTarget(null);
+  };
+
+  const handleReportSuccess = () => {
+    addToast("success", "Report Submitted", "Thank you — your feedback has been recorded locally.");
+    setReportTarget(null);
+  };
 
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
@@ -576,7 +593,7 @@ export default function App() {
         {/* Dynamic Center Panel Rendering based on active tab */}
         <div className="flex-1 min-h-0 flex flex-col relative">
           {selectedTab === "chat" && (
-            <ChatWindow messages={messages} isStreaming={isStreaming} />
+            <ChatWindow messages={messages} isStreaming={isStreaming} onReportIssue={handleReportIssue} />
           )}
 
           {selectedTab === "library" && (
@@ -774,6 +791,16 @@ export default function App() {
             </div>
           </div>
         </div>
+      )}
+
+      {/* Report AI Content Modal */}
+      {reportTarget && (
+        <ReportIssueModal
+          messageId={reportTarget.id}
+          messageText={reportTarget.text}
+          onClose={handleReportClose}
+          onReported={handleReportSuccess}
+        />
       )}
 
     </div>
