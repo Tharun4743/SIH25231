@@ -1,14 +1,17 @@
 <div align="center">
 
-# 🇮🇳 SIH25231 — Smart India Hackathon Automated Agricultural Intelligence & Market Linkage Platform
-### *Decentralized Agritech Infrastructure: Crop Disease Diagnosis, Predictive Price Modeling & Direct Farmer Marketplace*
+# 🧠 AURA — AI Unified Retrieval Assistant
+### *Air-Gapped Local Multimodal RAG Engine & Offline AI Knowledge Assistant (Desktop & Web)*
 
-[![Hackathon](https://img.shields.io/badge/Hackathon-Smart%20India%20Hackathon-ff9933?style=for-the-badge&logo=hackerearth&logoColor=white)](#) [![Domain](https://img.shields.io/badge/Domain-Agritech%20%26%20AI-10b981?style=for-the-badge&logo=leaflet&logoColor=white)](#) [![Vision AI](https://img.shields.io/badge/Vision%20AI-MobileNet%20%2F%20YOLO-4f46e5?style=for-the-badge&logo=tensorflow&logoColor=white)](#) [![Stack](https://img.shields.io/badge/Stack-Full%20Stack%20Web%20%26%20Mobile-61DAFB?style=for-the-badge&logo=react&logoColor=white)](#) [![License](https://img.shields.io/badge/License-Strict%20Proprietary-dc2626?style=for-the-badge&logo=lock&logoColor=white)](#)
+[![Platform](https://img.shields.io/badge/Platform-Desktop_%26_Web-4f46e5?style=for-the-badge&logo=electron&logoColor=white)](#)
+[![Backend](https://img.shields.io/badge/Backend-Java_17_%2B_Spring_Boot_3-6DB33F?style=for-the-badge&logo=springboot&logoColor=white)](#)
+[![Frontend](https://img.shields.io/badge/Frontend-React_%2B_Vite-61DAFB?style=for-the-badge&logo=react&logoColor=black)](#)
+[![Inference](https://img.shields.io/badge/Local_LLM-Ollama_(LLaMA_3)-000000?style=for-the-badge&logo=ollama&logoColor=white)](#)
+[![Database](https://img.shields.io/badge/Database-SQLite-003B57?style=for-the-badge&logo=sqlite&logoColor=white)](#)
+[![Data Sovereignty](https://img.shields.io/badge/Privacy-100%25_Air--Gapped-10b981?style=for-the-badge&logo=shield&logoColor=white)](#)
 
 <p align="center">
-  <a href="https://github.com/Tharun4743/SIH25231">📦 <b>Official GitHub Repository</b></a>
-  
-  
+  <b>100% On-Device Document Ingestion · Local Dense Embeddings · Real-Time WebSocket Streaming · Zero Cloud Telemetry</b>
 </p>
 
 </div>
@@ -16,106 +19,89 @@
 ---
 
 ## 1. 📌 Problem Statement & Context
-Smallholder farmers across rural India face severe economic hardships driven by predatory middlemen, crop diseases, and market volatility:
 
-* 🌾 **Catastrophic Crop Pathology Losses:** Farmers lack access to agricultural pathologists, failing to diagnose viral and fungal leaf diseases until crops are destroyed.
-* 📉 **Severe Price Exploitation:** Middlemen manipulate local mandi prices, paying farmers below-market rates while inflating consumer retail prices.
-* 🌧️ **Unpredictable Weather Shocks:** Sudden unseasonal rainfall and temperature anomalies cause massive post-harvest crop destruction without localized advisories.
-* 📱 **Digital Literacy Barriers:** Complex agricultural software platforms alienate rural farmers who require voice navigation and vernacular language interfaces.
+Enterprise, defense, legal, healthcare, and academic organizations face severe constraints when adopting modern generative AI:
 
----
-
-## 2. 🔍 Existing Solutions & Critical Gaps
-| Agritech Dimension | Traditional APMC Mandis | Generic Farming Apps | 🇮🇳 SIH25231 Platform |
-| :--- | :---: | :---: | :---: |
-| **Automated Disease Detection** | ❌ None (Manual Inspections) | ⚠️ Generic Text Descriptions | ✅ Real-Time Computer Vision Leaf Diagnosis |
-| **Middleman Elimination** | ❌ Exploitative 3-4 Layer Markup | ⚠️ Directory Listing Only | ✅ Direct Farmer-to-Consumer/Retail Marketplace |
-| **Predictive Mandi Pricing** | ❌ Retrospective Prices Only | ⚠️ Static Daily Price Feeds | ✅ ML Price Forecasting & Demand Trends |
-| **Vernacular Voice Navigation** | ❌ None | ⚠️ English/Hindi Only | ✅ Multi-Regional Voice Guidance & Multilingual |
-| **Weather & Crop Advisory** | ⚠️ Broad District TV Broadcasts | ⚠️ Generic Rain Forecasts | ✅ Hyper-Local Soil & Moisture Advisory |
-
-### ⚠️ Critical Limitations of Existing Alternatives:
-* 🚫 **Late Disease Intervention:** Without immediate image-based plant diagnostics, treatable leaf infections destroy entire regional harvests.
-* 🛑 **Middleman Cartels:** Farmers receive less than 30% of final retail consumer value due to exploitative commission agents.
-* 📴 **Unusable Interfaces:** Text-heavy applications exclude farmers who communicate primarily via regional voice dialects.
+* 🔒 **Data Privacy & Leakage Risks:** Transmitting confidential internal documents, IP, and personal records to third-party cloud LLM APIs breaches strict regulatory compliance (GDPR, HIPAA, air-gapped security mandates).
+* 💸 **Escalating Cloud API Expenses:** Per-token billing models create unpredictable recurring costs when processing large multi-page document archives.
+* 🌐 **Bandwidth & Connectivity Bottlenecks:** Field workers, remote personnel, and maritime/defense environments frequently operate in zero-connectivity or air-gapped settings where cloud APIs are completely unreachable.
+* ⏱️ **Hallucination & Lack of Citations:** Generic models hallucinate without ground-truth semantic references pointing back to exact pages in the original documents.
 
 ---
 
-## 3. 💡 Proposed Solution & Architectural Innovation
-**SIH25231** is an all-in-one agritech ecosystem engineered for the **Smart India Hackathon** to empower rural agricultural communities:
+## 2. 💡 Proposed Solution & Architectural Innovation
 
-* 🌿 **Computer Vision Leaf Diagnosis:** Deep learning model (MobileNet/YOLO) analyzing leaf photos to detect 20+ common crop diseases with treatment advisories.
-* 📊 **Predictive Mandi Price Forecasting:** Machine learning regression engine analyzing historical arrival volumes to predict commodity prices 7–14 days in advance.
-* 🛒 **Direct Farm-to-Buyer Marketplace:** Bypasses middlemen by connecting farmers directly with urban retailers, bulk food processors, and consumers.
-* 🗣️ **Multilingual Voice-First UX:** Intuitive interface supporting regional Indian languages with text-to-speech audio guidance for low-literacy users.
-* 🌦️ **Hyper-Local Agronomic Advisories:** Combines satellite weather data with soil health telemetry to deliver timely planting and irrigation recommendations.
+**AURA (AI Unified Retrieval Assistant)** is an air-gapped, privacy-first local multimodal Retrieval-Augmented Generation (RAG) platform. Engineered from the ground up to operate completely on local consumer hardware without requiring external internet access:
+
+* 🛡️ **100% Air-Gapped Local Inference:** Executes quantized local LLMs (`llama3`) and dense embeddings (`nomic-embed-text`) entirely on-device via local Ollama. Zero network requests, zero telemetry, and zero cloud API fees.
+* 📄 **Local Document Parsing & Chunking Pipeline:** Ingests PDFs locally via Apache PDFBox, segmenting text into semantic chunks with metadata tracking for page-level citations.
+* ⚡ **High-Throughput Spring Boot 3 Backend:** Enterprise Java 17 service tier leveraging Spring Boot, JPA, HikariCP connection pooling, and bi-directional WebSocket streaming (`/ws/chat`) for real-time token-by-token answer generation.
+* 🗄️ **Embedded SQLite Relational & Vector Storage:** Lightweight, zero-configuration database handling chat session persistence, document catalogs, and semantic vector similarity search.
+* 💻 **Dual Client Distribution:** Single unified codebase supporting both a lightweight React + Vite browser interface (with Vite reverse-proxy configuration) and an Electron desktop app packaging a bundled runtime.
 
 ---
 
-## 4. ⚙️ Technical Approach & System Architecture
+## 3. ⚙️ Technical Approach & System Architecture
 
-### 📐 High-Level Architectural Flowchart:
 ```mermaid
 graph TD
-    App["Vernacular Voice Client (React / React Native)"] --> Gateway["Agritech Core API (Node.js / Express)"]
-    Gateway --> Vision["Leaf Pathology Classifier (MobileNet / YOLO)"]
-    Gateway --> Forecast["Mandi Price Prediction Engine (Scikit-Learn)"]
-    Gateway --> Market["Direct Farmer-Buyer Escrow Marketplace"]
-    Gateway --> Agro["Weather & Soil Advisory Services (IMD / OpenMeteo)"]
+    User["User Interface (React + Vite / Electron)"] -->|"WebSocket /ws/chat & REST /api/*"| Gateway["Spring Boot 3 Core Backend (Java 17)"]
+    Gateway --> Parser["Local Document Pipeline (Apache PDFBox)"]
+    Parser --> Embedding["Local Embedding Engine (Ollama nomic-embed-text)"]
+    Embedding --> DB[("Embedded SQLite Vector & Relational Storage")]
+    Gateway --> Retriever["Semantic Vector Retrieval & Context Builder"]
+    Retriever --> LLM["Local LLM Inference Engine (Ollama LLaMA 3)"]
+    LLM -->|"Streaming Token Response"| User
 ```
 
-| Architecture Tier | Technologies Implemented | Engineering Responsibility |
+| Architecture Layer | Technology Stack | Operational Responsibility |
 | :--- | :--- | :--- |
-| **Mobile & Web UI** | React Native / React, Tailwind CSS | Accessible vernacular client with voice input and offline caching |
-| **Vision Diagnostics** | TensorFlow Lite, Python, OpenCV | On-device and cloud image classification for crop leaf pathology |
-| **Marketplace API** | Node.js, Express, PostgreSQL | Secure order routing, escrow transactions, and inventory catalogs |
-| **Price Forecasting** | Python Scikit-Learn, Pandas | Historical mandi trend analysis and predictive commodity pricing models |
-| **Weather Integration** | OpenWeatherMap API, IMD Data Feeds | Real-time agro-meteorological advisories and extreme weather alerts |
+| **Desktop Shell** | Electron 31, Node.js | Cross-platform desktop runtime, system tray, window management, bundled JRE |
+| **Web Frontend** | React, Vite, Tailwind CSS | Single-page application, interactive chat UI, document upload, markdown rendering |
+| **Backend Core** | Java 17, Spring Boot 3.x | REST API controllers, WebSocket chat endpoints, request validation, HikariCP |
+| **Document Processing** | Apache PDFBox, Commons IO | Extract text from PDF files, page segmentation, token chunking |
+| **Local Inference & RAG**| Ollama (`llama3`, `nomic-embed-text`) | On-device dense embedding generation and streaming token inference |
+| **Data Storage** | SQLite JDBC, Hibernate | Local session history, document registry, embedded relational records |
 
-### 🔄 End-to-End Operational Lifecycle Workflow:
-```mermaid
-flowchart LR
-    A["1. Leaf Pathology Image Capture"] --> B["2. On-Device & Cloud AI Diagnosis"]
-    B --> C["3. Mandi Market Trend Forecast"]
-    C --> D["4. Direct Consumer Harvest Listing"]
-    D --> E["5. Escrow Payment Settlement"]
+---
+
+## 4. 🚀 Getting Started
+
+### Prerequisites
+1. **Node.js** (v18+)
+2. **Java Development Kit (JDK 17+)**
+3. **Maven** (configured and available on system `PATH`)
+4. **Ollama** running locally with the required models pulled:
+   ```bash
+   ollama pull llama3
+   ollama pull nomic-embed-text
+   ```
+
+---
+
+### Quick Start (Web Mode — Windows)
+Double-click or run from the root directory:
+```cmd
+run-web.bat
 ```
+*The script automatically verifies dependencies, checks Ollama connectivity, starts the Spring Boot backend on port `8080`, and launches the Vite frontend on port `5173` with automatic reverse proxying.*
 
-1. **Disease Diagnosis:** Farmer snaps leaf photo → Vision model classifies disease in 2 seconds → Displays organic and chemical treatments.
-2. **Market Price Discovery:** Farmer inputs crop type → ML model forecasts upcoming price trends → Recommends optimal mandi selling window.
-3. **Direct Sale:** Farmer lists harvest on marketplace → Buyer places order → Escrow holds funds until crop delivery confirmation.
-
----
-
-## 5. 📈 Quantifiable Impact & Measurable Benefits
-* 🌾 **Up to 30% Crop Loss Reduction:** Early diagnosis allows rapid fungicide and pest treatments before disease spreads across fields.
-* 💰 **20–40% Higher Farmer Incomes:** Direct marketplace eliminates exploitative middleman commission markups.
-* 📈 **Informed Selling Decisions:** Predictive price trends prevent distress selling during temporary market gluts.
-* 📱 **Broad Rural Accessibility:** Voice-driven vernacular interface enables seamless adoption across diverse educational backgrounds.
-
----
-
-## 6. 🚀 Feasibility, Operational Viability & Scalability
-* 🔬 **Technical Feasibility:** Combines lightweight edge AI models that operate on entry-level Android smartphones with cloud analytics.
-* 💰 **Economic & Financial Viability:** Built on open-source frameworks, requiring zero software licensing fees and creating immense value for rural cooperatives.
-* 🏛️ **Operational Governance:** Designed specifically around agricultural extension worker workflows and rural Self-Help Group (SHG) networks.
-* 📈 **Horizontal Scalability Roadmap:** Easily scales across states by expanding commodity price datasets and integrating local language translation models.
+### Manual Startup
+1. **Start Backend:**
+   ```bash
+   cd desktop/src/backend
+   mvn spring-boot:run
+   ```
+2. **Start Frontend:**
+   ```bash
+   cd web/frontend
+   npm install
+   npm run dev
+   ```
+3. Open `http://localhost:5173` in your browser.
 
 ---
 
-## 7. 👨‍💻 Author & Intellectual Property License
+## 5. 👥 Author & Development Team
 
-### Lead Architect & Author
-**Tharunkumar K** ([@Tharun4743](https://github.com/Tharun4743))
-* 🎓 B.Tech Information Technology • V.S.B. Engineering College, Karur
-* 🌐 [GitHub Profile](https://github.com/Tharun4743) • [LinkedIn](https://linkedin.com/in/tharunkumark4743) • [Personal Portfolio](https://tharunkumark4743.netlify.app)
-
-### 🔒 Proprietary License Notice (All Rights Reserved)
-> [!CAUTION]
-> **PROPRIETARY & CONFIDENTIAL INTELLECTUAL PROPERTY**
-> 
-> All rights reserved. This repository, its architecture, source code, workflows, firmware, and associated documentation are the exclusive intellectual property of **Tharunkumar K**.
-> 
-> **No entity, organization, or individual is permitted to copy, modify, distribute, publish, commercially exploit, reverse engineer, or deploy any portion of this project without express, prior written permission from the author.**
-> 
-> **Copyright © 2026 Tharunkumar K. All Rights Reserved.**
+* **Tharunkumar K** ([@Tharun4743](https://github.com/Tharun4743)) — *Full Stack & AI Systems Developer*
